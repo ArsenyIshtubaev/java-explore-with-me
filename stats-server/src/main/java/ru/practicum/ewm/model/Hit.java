@@ -23,7 +23,7 @@ public class Hit implements Serializable {
     private String app;
     @Column(name = "uri", nullable = false)
     private String uri;
-    @Column(name="ip", nullable = false)
+    @Column(name = "ip", nullable = false)
     private String ip;
     @Column(name = "request_time")
     private LocalDateTime timestamp;

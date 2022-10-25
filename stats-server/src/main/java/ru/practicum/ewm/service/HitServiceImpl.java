@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class HitServiceImpl implements HitService{
+public class HitServiceImpl implements HitService {
 
     private final HitRepository hitRepository;
 
@@ -46,7 +46,7 @@ public class HitServiceImpl implements HitService{
 
                 List<Predicate> predicates = new ArrayList<>();
                 predicates.add(cb.between(root.get("request_time"), start, end));
-                if (uris != null){
+                if (uris != null) {
                     predicates.add(cb.equal(root.get("uri"), uris));
                 }
                 return cb.and(predicates.toArray(new Predicate[predicates.size()]));
@@ -55,11 +55,10 @@ public class HitServiceImpl implements HitService{
         result = this.hitRepository.findAll(querySpec);
         viewStats.setUri(result.get(0).getUri());
         viewStats.setApp(result.get(0).getApp());
-        if (unique){
+        if (unique) {
             List<String> ips = result.stream().map(Hit::getIp).distinct().collect(Collectors.toList());
             viewStats.setHits(ips.size());
-        }
-        else {
+        } else {
             viewStats.setHits(result.size());
         }
         return result2;
