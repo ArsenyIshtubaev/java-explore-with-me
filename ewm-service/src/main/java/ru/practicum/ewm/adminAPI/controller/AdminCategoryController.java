@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.adminAPI.dto.CategoryDto;
-import ru.practicum.ewm.adminAPI.dto.UserDto;
 import ru.practicum.ewm.adminAPI.service.AdminCategoryService;
 
 import java.util.List;
@@ -37,7 +36,7 @@ public class AdminCategoryController {
     @GetMapping("/{catId}")
     public CategoryDto findCategoryById(@PathVariable long catId) {
         log.info("Get category id={}", catId);
-       return adminCategoryService.findById(catId);
+        return adminCategoryService.findById(catId);
     }
 
     @PatchMapping

@@ -21,9 +21,9 @@ public class AdminUserController {
     }
 
     @GetMapping
-    public List<UserDto> findAll( @RequestParam(required = false) Long[] ids,
-                                  @RequestParam(defaultValue = "0") int from,
-                                  @RequestParam(defaultValue = "10") int size) {
+    public List<UserDto> findAll(@RequestParam(required = false) Long[] ids,
+                                 @RequestParam(defaultValue = "0") int from,
+                                 @RequestParam(defaultValue = "10") int size) {
         return adminUserService.findAll(ids, from, size);
     }
 

@@ -13,7 +13,7 @@ import java.util.List;
 @Slf4j
 @Service
 @Transactional(readOnly = true)
-public class AdminEventServiceImpl implements AdminEventService{
+public class AdminEventServiceImpl implements AdminEventService {
 
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;

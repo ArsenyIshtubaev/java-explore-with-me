@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import ru.practicum.ewm.adminAPI.dto.UserDto;
 import ru.practicum.ewm.model.Location;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.validation.constraints.NotNull;
 
 @Data

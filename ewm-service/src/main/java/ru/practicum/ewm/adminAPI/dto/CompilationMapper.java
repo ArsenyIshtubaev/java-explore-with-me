@@ -12,14 +12,14 @@ import java.util.stream.Collectors;
 public class CompilationMapper {
 
     public Compilation toCompilation(NewCompilationDto newCompilationDto, Set<Event> events) {
-        if (newCompilationDto.getPinned() == null){
+        if (newCompilationDto.getPinned() == null) {
             newCompilationDto.setPinned(false);
         }
         return new Compilation(null,
                 newCompilationDto.getPinned(),
                 newCompilationDto.getTitle(),
                 events
-                );
+        );
     }
 
 

@@ -34,7 +34,7 @@ public class EventMapper {
     }
 
     public Event toEvent(NewEventDto newEventDto, User initiator) {
-        if (newEventDto.getParticipantLimit() == null){
+        if (newEventDto.getParticipantLimit() == null) {
             newEventDto.setParticipantLimit(0);
         }
         return new Event(null,
@@ -54,7 +54,7 @@ public class EventMapper {
                 0L);
     }
 
-    public EventFullDto toEventFullDto(Event event, Integer confirmedRequest, UserDto initiator){
+    public EventFullDto toEventFullDto(Event event, Integer confirmedRequest, UserDto initiator) {
         return new EventFullDto(event.getId(),
                 event.getAnnotation(),
                 confirmedRequest,
@@ -69,7 +69,7 @@ public class EventMapper {
                 event.getRequestModeration(),
                 event.getState().name(),
                 event.getTitle(),
-               event.getViews());
+                event.getViews());
     }
 
     public EventShortDto toEventShortDto(Event event, Integer confirmedRequest,

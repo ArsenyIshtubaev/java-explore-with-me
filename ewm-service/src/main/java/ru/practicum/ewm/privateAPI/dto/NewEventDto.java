@@ -1,14 +1,10 @@
 package ru.practicum.ewm.privateAPI.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
-import ru.practicum.ewm.adminAPI.dto.UserDto;
-import ru.practicum.ewm.enums.State;
-import ru.practicum.ewm.model.Category;
 import ru.practicum.ewm.model.Location;
 
 import javax.validation.constraints.Future;

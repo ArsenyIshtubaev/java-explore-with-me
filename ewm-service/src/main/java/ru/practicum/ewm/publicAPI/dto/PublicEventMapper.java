@@ -22,11 +22,11 @@ public class PublicEventMapper {
         this.hitClient = hitClient;
     }
 
-    public EventFullDto toEventFullDto (Event event){
+    public EventFullDto toEventFullDto(Event event) {
         ViewStats viewStats = (ViewStats) hitClient.getStats(("http://localhost:8080/events/" + event.getId()),
                 event.getCreatedOn(), LocalDateTime.now(), false).getBody();
         Integer views = 0;
-        if (viewStats != null){
+        if (viewStats != null) {
             views = viewStats.getHits();
         }
         return new EventFullDto(event.getId(), event.getAnnotation(),

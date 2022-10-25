@@ -10,11 +10,11 @@ public interface AdminEventService {
     List<EventFullDto> findAll(int [] users, String [] states, int [] categories, String rangeStart,
                                String rangeEnd, int from, int size);
 
-    EventFullDto update (long eventId, UpdateEventRequest updateEventRequest);
+    EventFullDto update(long eventId, UpdateEventRequest updateEventRequest);
 
-    EventFullDto publicationEvent (long eventId);
+    EventFullDto publicationEvent(long eventId);
 
-    EventFullDto rejectEvent (long eventId);
+    EventFullDto rejectEvent(long eventId);
 
 
 }
