@@ -30,6 +30,8 @@ public class Event {
     private LocalDateTime eventDate;
     @Column(name = "created_date", nullable = false)
     private LocalDateTime createdOn;
+    @Column(name = "published_date")
+    private LocalDateTime publishedOn;
     @ManyToOne
     @JoinColumn(name = "location_id")
     private Location location;
@@ -40,9 +42,9 @@ public class Event {
     private Boolean paid;
     @Column(name = "title", nullable = false)
     private String title;
-    @Column(name = "participantLimit", nullable = false)
+    @Column(name = "participant_limit", nullable = false)
     private Integer participantLimit;
-    @Column(name = "requestModeration", nullable = false)
+    @Column(name = "request_moderation", nullable = false)
     private Boolean requestModeration;
     @Column(name = "state", nullable = false)
     private State state;

@@ -4,15 +4,11 @@ import ru.practicum.ewm.adminAPI.dto.UserDto;
 
 import java.util.List;
 
-public interface UserService {
+public interface AdminUserService {
 
-    UserDto findById(long userId);
-
-    List<UserDto> findAll();
+    List<UserDto> findAll(Long[] ids, int from, int size);
 
     UserDto save(UserDto userDto);
-
-    UserDto update(long userId, UserDto userDto);
 
     void deleteById(long userId);
 

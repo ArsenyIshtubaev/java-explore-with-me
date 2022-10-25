@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users
 CREATE TABLE IF NOT EXISTS categories
 (
     category_id   BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    category_name VARCHAR(255) NOT NULL
+    category_name VARCHAR(255) NOT NULL UNIQUE
 );
 CREATE TABLE IF NOT EXISTS location
 (
@@ -19,17 +19,18 @@ CREATE TABLE IF NOT EXISTS location
 CREATE TABLE IF NOT EXISTS events
 (
     event_id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    annotation        VARCHAR(255)                NOT NULL,
+    annotation        VARCHAR(2000)               NOT NULL,
     category_id       BIGINT REFERENCES categories (category_id),
-    description       VARCHAR(255)                NOT NULL,
+    description       VARCHAR(7000)               NOT NULL,
     event_date        timestamp WITHOUT TIME ZONE NOT NULL,
     created_date      timestamp WITHOUT TIME ZONE NOT NULL,
+    published_date    timestamp WITHOUT TIME ZONE,
     location_id       BIGINT REFERENCES location (location_id),
     initiator_id      BIGINT REFERENCES users (user_id),
     paid              boolean                     NOT NULL,
-    title             VARCHAR(255)                NOT NULL,
-    participantLimit  int                         NOT NULL,
-    requestModeration boolean                     NOT NULL,
+    title             VARCHAR(120)                NOT NULL,
+    participant_limit  int                         NOT NULL,
+    request_moderation boolean                     NOT NULL,
     state             VARCHAR(15)                 NOT NULL,
     views             int,
     CONSTRAINT fk_events_to_users FOREIGN KEY (initiator_id) REFERENCES users (user_id),
@@ -56,5 +57,6 @@ CREATE TABLE IF NOT EXISTS requests
     status       VARCHAR(255) NOT NULL,
     created      timestamp WITHOUT TIME ZONE,
     CONSTRAINT fk_requests_to_users FOREIGN KEY (requester_id) REFERENCES users (user_id),
-    CONSTRAINT fk_requests_to_events FOREIGN KEY (requester_id) REFERENCES events (event_id)
+    CONSTRAINT fk_requests_to_events FOREIGN KEY (requester_id) REFERENCES events (event_id),
+    UNIQUE (event_id, request_id)
 );
