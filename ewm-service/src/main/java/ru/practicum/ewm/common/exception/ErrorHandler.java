@@ -17,7 +17,6 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ApiError handle(StorageException ex) {
         log.error("Storage error - object not found" + "\n" + ex.getMessage());
-        ex.printStackTrace();
         return ApiError.builder()
                 .message(ex.getMessage())
                 .reason("The required object was not found.")
