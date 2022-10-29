@@ -53,7 +53,7 @@ public class EventMapper {
         if (event.getPublishedOn() != null) {
             published = DateTimeMapper.toString(event.getPublishedOn());
         }
-        String[] uris = new String[]{"http://localhost:8080/events/" + event.getId()};
+        String[] uris = new String[]{"http://ewm-service:8080/events/" + event.getId()};
         ResponseEntity<Object> objectResponseEntity = hitClient
                 .getStats(uris,
                         DateTimeMapper.toString(event.getCreatedOn()),
@@ -85,7 +85,7 @@ public class EventMapper {
                                          UserMapper userMapper) {
         Gson gson = new Gson();
         Integer views = 0;
-        String[] uris = new String[]{"http://localhost:8080/events/" + event.getId()};
+        String[] uris = new String[]{"http://ewm-service:8080/events/" + event.getId()};
         ResponseEntity<Object> objectResponseEntity = hitClient
                 .getStats(uris,
                         DateTimeMapper.toString(event.getCreatedOn()),
