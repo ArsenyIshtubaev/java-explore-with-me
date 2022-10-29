@@ -1,6 +1,6 @@
 package ru.practicum.ewm.privateAPI.service;
 
-import ru.practicum.ewm.privateAPI.dto.*;
+import ru.practicum.ewm.common.dto.*;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ public interface PrivateEventService {
 
     List<EventShortDto> findAll(long userId, int from, int size);
 
-    NewEventDto save(long userId, NewEventDto newEventDto);
+    EventFullDto save(long userId, NewEventDto newEventDto);
 
     EventFullDto update(long userId, UpdateEventRequest updateEventRequest);
 

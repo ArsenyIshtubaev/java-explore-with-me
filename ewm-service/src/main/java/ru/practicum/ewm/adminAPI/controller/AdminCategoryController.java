@@ -3,7 +3,7 @@ package ru.practicum.ewm.adminAPI.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.adminAPI.dto.CategoryDto;
+import ru.practicum.ewm.common.dto.CategoryDto;
 import ru.practicum.ewm.adminAPI.service.AdminCategoryService;
 
 import java.util.List;
@@ -22,15 +22,15 @@ public class AdminCategoryController {
 
     @PostMapping
     public CategoryDto create(@RequestBody CategoryDto categoryDto) {
-        log.info("Получен запрос к эндпоинту: '{} {}', Категория: Имя: {}", "POST", "/admin/categories",
+        log.info("Get request: '{} {}', Category: Name: {}", "POST", "/admin/categories",
                 categoryDto.getName());
         return adminCategoryService.save(categoryDto);
     }
 
     @DeleteMapping("/{catId}")
-    public CategoryDto deleteUserById(@PathVariable long catId) {
+    public void deleteUserById(@PathVariable long catId) {
         log.info("Delete category id={}", catId);
-        return adminCategoryService.deleteById(catId);
+        adminCategoryService.deleteById(catId);
     }
 
     @GetMapping("/{catId}")

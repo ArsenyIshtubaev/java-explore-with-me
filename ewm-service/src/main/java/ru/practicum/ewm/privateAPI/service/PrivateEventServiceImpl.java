@@ -6,20 +6,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ewm.adminAPI.dto.CategoryMapper;
-import ru.practicum.ewm.adminAPI.dto.UserMapper;
-import ru.practicum.ewm.enums.State;
-import ru.practicum.ewm.exception.ForbiddenException;
-import ru.practicum.ewm.exception.StorageException;
-import ru.practicum.ewm.model.Event;
-import ru.practicum.ewm.model.Request;
-import ru.practicum.ewm.model.User;
-import ru.practicum.ewm.privateAPI.dto.*;
-import ru.practicum.ewm.repository.CategoryRepository;
-import ru.practicum.ewm.repository.EventRepository;
-import ru.practicum.ewm.repository.RequestRepository;
-import ru.practicum.ewm.repository.UserRepository;
-import ru.practicum.ewm.utills.DateTimeMapper;
+import ru.practicum.ewm.common.dto.*;
+import ru.practicum.ewm.common.enums.State;
+import ru.practicum.ewm.common.exception.ForbiddenException;
+import ru.practicum.ewm.common.exception.StorageException;
+import ru.practicum.ewm.common.model.Event;
+import ru.practicum.ewm.common.model.Request;
+import ru.practicum.ewm.common.model.User;
+import ru.practicum.ewm.common.repository.*;
+import ru.practicum.ewm.common.utills.DateTimeMapper;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,22 +30,24 @@ public class PrivateEventServiceImpl implements PrivateEventService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final RequestRepository requestRepository;
-    private final CategoryMapper categoryMapper;
     private final CategoryRepository categoryRepository;
     private final RequestMapper requestMapper;
+    private final LocationRepository locationRepository;
 
     @Autowired
     public PrivateEventServiceImpl(EventRepository eventRepository, EventMapper eventMapper,
                                    UserRepository userRepository, UserMapper userMapper,
-                                   RequestRepository requestRepository, CategoryMapper categoryMapper, CategoryRepository categoryRepository, RequestMapper requestMapper) {
+                                   RequestRepository requestRepository,
+                                   CategoryRepository categoryRepository, RequestMapper requestMapper,
+                                   LocationRepository locationRepository) {
         this.eventRepository = eventRepository;
         this.eventMapper = eventMapper;
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.requestRepository = requestRepository;
-        this.categoryMapper = categoryMapper;
         this.categoryRepository = categoryRepository;
         this.requestMapper = requestMapper;
+        this.locationRepository = locationRepository;
     }
 
     @Override
@@ -59,11 +56,6 @@ public class PrivateEventServiceImpl implements PrivateEventService {
                 .orElseThrow(() -> new StorageException("User with Id = " + userId + " not found"));
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new StorageException("Event with  Id = " + eventId + " not found"));
-        if (!initiator.equals(event.getInitiator())) {
-            throw new ForbiddenException("User can not to look events of other users");
-        }
-        Long views = event.getViews() + 1;
-        event.setViews(views);
         eventRepository.save(event);
         return eventMapper.toEventFullDto(event, getConfirmedRequest(eventId), userMapper.toUserDto(initiator));
     }
@@ -76,7 +68,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         return eventRepository.findByInitiatorId(userId, pageable)
                 .stream()
                 .map(event -> eventMapper.toEventShortDto(event, getConfirmedRequest(event.getId()),
-                        userMapper, categoryMapper))
+                        userMapper))
                 .collect(Collectors.toList());
     }
 
@@ -91,14 +83,18 @@ public class PrivateEventServiceImpl implements PrivateEventService {
 
     @Override
     @Transactional
-    public NewEventDto save(long userId, NewEventDto newEventDto) {
-        if (newEventDto.getEventDate().minusHours(2).isBefore(LocalDateTime.now())) {
+    public EventFullDto save(long userId, NewEventDto newEventDto) {
+        LocalDateTime eventDate = DateTimeMapper.toDateTime(newEventDto.getEventDate());
+        if (eventDate.minusHours(2).isBefore(LocalDateTime.now())) {
             throw new ForbiddenException("Date of the event cannot be earlier than two hours from the current moment");
         }
         User initiator = userRepository.findById(userId)
                 .orElseThrow(() -> new StorageException("User with Id = " + userId + " not found"));
-        Event event = eventMapper.toEvent(newEventDto, initiator);
-        return eventMapper.toNewEventDto(eventRepository.save(event));
+        locationRepository.save(newEventDto.getLocation());
+        Event event = eventRepository.save(eventMapper.toEvent(newEventDto, initiator));
+        return eventMapper.toEventFullDto(event,
+                0,
+                userMapper.toUserDto(initiator));
     }
 
     @Override
@@ -225,7 +221,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         Request request = requestRepository.findById(reqId)
                 .orElseThrow(() -> new StorageException("Request with Id = " + reqId + " not found"));
 
-        request.setStatus(State.CANCELED);
+        request.setStatus(State.REJECTED);
         return requestMapper.toParticipationRequestDto(requestRepository.save(request));
     }
 }

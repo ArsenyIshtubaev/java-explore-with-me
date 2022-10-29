@@ -3,7 +3,8 @@ package ru.practicum.ewm.adminAPI.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.adminAPI.dto.NewCompilationDto;
+import ru.practicum.ewm.common.dto.CompilationDto;
+import ru.practicum.ewm.common.dto.NewCompilationDto;
 import ru.practicum.ewm.adminAPI.service.AdminCompilationService;
 
 @RestController
@@ -19,7 +20,7 @@ public class AdminCompilationsController {
     }
 
     @PostMapping
-    public NewCompilationDto create(@RequestBody NewCompilationDto newCompilationDto) {
+    public CompilationDto create(@RequestBody NewCompilationDto newCompilationDto) {
         log.info("POST : '{}', compilation title={}", "/admin/compilations",
                 newCompilationDto.getTitle());
         return adminCompilationService.save(newCompilationDto);

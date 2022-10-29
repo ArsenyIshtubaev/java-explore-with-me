@@ -3,7 +3,7 @@ package ru.practicum.ewm.privateAPI.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.privateAPI.dto.ParticipationRequestDto;
+import ru.practicum.ewm.common.dto.ParticipationRequestDto;
 import ru.practicum.ewm.privateAPI.service.RequestService;
 
 import java.util.List;

@@ -4,8 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.adminAPI.service.AdminEventService;
-import ru.practicum.ewm.privateAPI.dto.EventFullDto;
-import ru.practicum.ewm.privateAPI.dto.UpdateEventRequest;
+import ru.practicum.ewm.common.dto.EventFullDto;
+import ru.practicum.ewm.common.dto.UpdateEventRequest;
+import ru.practicum.ewm.common.enums.State;
 
 import java.util.List;
 
@@ -22,9 +23,9 @@ public class AdminEventController {
     }
 
     @GetMapping()
-    public List<EventFullDto> findAll(@RequestParam(required = false) int[] users,
-                                      @RequestParam(required = false) String[] states,
-                                      @RequestParam(required = false) int[] categories,
+    public List<EventFullDto> findAll(@RequestParam(required = false) Long[] users,
+                                      @RequestParam(required = false) State[] states,
+                                      @RequestParam(required = false) Long[] categories,
                                       @RequestParam(required = false) String rangeStart,
                                       @RequestParam(required = false) String rangeEnd,
                                       @RequestParam(defaultValue = "0") int from,

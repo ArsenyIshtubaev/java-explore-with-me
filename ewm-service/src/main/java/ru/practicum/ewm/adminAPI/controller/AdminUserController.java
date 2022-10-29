@@ -3,7 +3,7 @@ package ru.practicum.ewm.adminAPI.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.adminAPI.dto.UserDto;
+import ru.practicum.ewm.common.dto.UserDto;
 import ru.practicum.ewm.adminAPI.service.AdminUserService;
 
 import java.util.List;
@@ -29,7 +29,7 @@ public class AdminUserController {
 
     @PostMapping
     public UserDto create(@RequestBody UserDto userDto) {
-        log.info("Получен запрос к эндпоинту: '{} {}', Пользователь: Имя: {} и Email: {}", "POST", "/users",
+        log.info("Get request: '{} {}', User: Name: {} and Email: {}", "POST", "/users",
                 userDto.getName(), userDto.getEmail());
         return adminUserService.save(userDto);
     }

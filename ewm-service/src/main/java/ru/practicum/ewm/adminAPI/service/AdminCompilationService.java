@@ -1,10 +1,11 @@
 package ru.practicum.ewm.adminAPI.service;
 
-import ru.practicum.ewm.adminAPI.dto.NewCompilationDto;
+import ru.practicum.ewm.common.dto.CompilationDto;
+import ru.practicum.ewm.common.dto.NewCompilationDto;
 
 public interface AdminCompilationService {
 
-    NewCompilationDto save(NewCompilationDto newCompilationDto);
+    CompilationDto save(NewCompilationDto newCompilationDto);
 
     void deleteById(long compId);
 

@@ -1,15 +1,14 @@
 package ru.practicum.ewm.service;
 
-import ru.practicum.ewm.model.Hit;
-import ru.practicum.ewm.model.ViewStats;
+import ru.practicum.ewm.dto.EndpointHit;
+import ru.practicum.ewm.dto.ViewStats;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface HitService {
 
-    Hit save(Hit hit);
+    EndpointHit save(EndpointHit endpointHit);
 
-    List<ViewStats> findStats(String[] uris, LocalDateTime start, LocalDateTime end, Boolean unique);
+    List<ViewStats> findStats(String[] uris, String start, String end, Boolean unique);
 
 }

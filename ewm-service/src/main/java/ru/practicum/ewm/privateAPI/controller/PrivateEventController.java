@@ -3,7 +3,7 @@ package ru.practicum.ewm.privateAPI.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.privateAPI.dto.*;
+import ru.practicum.ewm.common.dto.*;
 import ru.practicum.ewm.privateAPI.service.PrivateEventService;
 
 import java.util.List;
@@ -28,7 +28,7 @@ public class PrivateEventController {
     }
 
     @PostMapping
-    public NewEventDto create(@PathVariable long userId, @RequestBody NewEventDto newEventDto) {
+    public EventFullDto create(@PathVariable long userId, @RequestBody NewEventDto newEventDto) {
         log.info("POST : '{}', event annotation={}", "/users/{userId}/events",
                 newEventDto.getAnnotation());
         return privateEventService.save(userId, newEventDto);
@@ -43,7 +43,7 @@ public class PrivateEventController {
 
     @PatchMapping
     public EventFullDto update(@PathVariable long userId,
-                                     @RequestBody UpdateEventRequest updateEventRequest) {
+                               @RequestBody UpdateEventRequest updateEventRequest) {
         log.info("PATCH event id={}, annotation={}", updateEventRequest.getEventId(),
                 updateEventRequest.getAnnotation());
         return privateEventService.update(userId, updateEventRequest);

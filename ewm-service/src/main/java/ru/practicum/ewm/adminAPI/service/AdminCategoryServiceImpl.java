@@ -4,11 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ewm.adminAPI.dto.CategoryDto;
-import ru.practicum.ewm.adminAPI.dto.CategoryMapper;
-import ru.practicum.ewm.exception.StorageException;
-import ru.practicum.ewm.model.Category;
-import ru.practicum.ewm.repository.CategoryRepository;
+import ru.practicum.ewm.common.dto.CategoryDto;
+import ru.practicum.ewm.common.dto.CategoryMapper;
+import ru.practicum.ewm.common.exception.StorageException;
+import ru.practicum.ewm.common.model.Category;
+import ru.practicum.ewm.common.repository.CategoryRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,7 +31,7 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
     @Override
     public CategoryDto findById(long categoryId) {
         return categoryMapper.toCategoryDto(categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new StorageException("Категории с Id = " + categoryId + " нет в БД")));
+                .orElseThrow(() -> new StorageException("Category with Id = " + categoryId + " not found")));
     }
 
     @Override
@@ -51,18 +51,14 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
     @Transactional
     public CategoryDto update(CategoryDto categoryDto) {
         Category category = categoryRepository.findById(categoryDto.getId())
-                .orElseThrow(() -> new StorageException("Категории с Id = " + categoryDto.getId() + " нет в БД"));
+                .orElseThrow(() -> new StorageException("Category with Id = " + categoryDto.getId() + " not found"));
         category.setName(categoryDto.getName());
         return categoryMapper.toCategoryDto(categoryRepository.save(category));
     }
 
     @Override
     @Transactional
-    public CategoryDto deleteById(long categoryId) {
-        CategoryDto oldCategoryDto = findById(categoryId);
-        log.info(oldCategoryDto.toString());
+    public void deleteById(long categoryId) {
         categoryRepository.deleteById(categoryId);
-        log.info(String.valueOf(categoryId));
-        return oldCategoryDto;
     }
 }

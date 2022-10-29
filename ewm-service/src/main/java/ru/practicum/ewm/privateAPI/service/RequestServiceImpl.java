@@ -4,17 +4,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ewm.enums.State;
-import ru.practicum.ewm.exception.ForbiddenException;
-import ru.practicum.ewm.exception.StorageException;
-import ru.practicum.ewm.model.Event;
-import ru.practicum.ewm.model.Request;
-import ru.practicum.ewm.model.User;
-import ru.practicum.ewm.privateAPI.dto.ParticipationRequestDto;
-import ru.practicum.ewm.privateAPI.dto.RequestMapper;
-import ru.practicum.ewm.repository.EventRepository;
-import ru.practicum.ewm.repository.RequestRepository;
-import ru.practicum.ewm.repository.UserRepository;
+import ru.practicum.ewm.common.enums.State;
+import ru.practicum.ewm.common.exception.ForbiddenException;
+import ru.practicum.ewm.common.exception.StorageException;
+import ru.practicum.ewm.common.model.Event;
+import ru.practicum.ewm.common.model.Request;
+import ru.practicum.ewm.common.model.User;
+import ru.practicum.ewm.common.dto.ParticipationRequestDto;
+import ru.practicum.ewm.common.dto.RequestMapper;
+import ru.practicum.ewm.common.repository.EventRepository;
+import ru.practicum.ewm.common.repository.RequestRepository;
+import ru.practicum.ewm.common.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,7 +31,8 @@ public class RequestServiceImpl implements RequestService {
     private final RequestRepository requestRepository;
 
     @Autowired
-    public RequestServiceImpl(RequestMapper requestMapper, UserRepository userRepository, EventRepository eventRepository, RequestRepository requestRepository) {
+    public RequestServiceImpl(RequestMapper requestMapper, UserRepository userRepository,
+                              EventRepository eventRepository, RequestRepository requestRepository) {
         this.requestMapper = requestMapper;
         this.userRepository = userRepository;
         this.eventRepository = eventRepository;

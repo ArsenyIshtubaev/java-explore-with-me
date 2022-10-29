@@ -7,9 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-import ru.practicum.ewm.model.Hit;
+import ru.practicum.ewm.common.dto.EndpointHit;
+import ru.practicum.ewm.common.dto.ViewStats;
 
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -27,21 +28,23 @@ public class HitClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> save(Hit hit) {
-        return post("/hit", hit);
+    public ResponseEntity<Object> save(EndpointHit endpointHit) {
+        return post("/hit", endpointHit);
     }
 
-    public ResponseEntity<Object> getStats(String uri, LocalDateTime start, LocalDateTime end, Boolean unique) {
-        if (unique == null) {
-            unique = false;
+    public ResponseEntity<Object> getStats(String[] uris, String start, String end, Boolean unique) {
+
+        StringBuilder uriString = new StringBuilder();
+        for (String uri : uris){
+            uriString.append("uris=").append(uri).append("&");
         }
         Map<String, Object> parameters = Map.of(
-                "uri", uri,
+                "uris", uriString.toString(),
                 "start", start,
                 "end", end,
                 "unique", unique
         );
-        return get("/stats?uri={uri}&start={start}&end={end}&unique={unique}", parameters);
+        return get("/stats?{uris}start={start}&end={end}&unique={unique}", parameters);
     }
 
 }

@@ -1,13 +1,14 @@
 package ru.practicum.ewm.adminAPI.service;
 
-import ru.practicum.ewm.privateAPI.dto.EventFullDto;
-import ru.practicum.ewm.privateAPI.dto.UpdateEventRequest;
+import ru.practicum.ewm.common.dto.EventFullDto;
+import ru.practicum.ewm.common.dto.UpdateEventRequest;
+import ru.practicum.ewm.common.enums.State;
 
 import java.util.List;
 
 public interface AdminEventService {
 
-    List<EventFullDto> findAll(int [] users, String [] states, int [] categories, String rangeStart,
+    List<EventFullDto> findAll(Long[] users, State[] states, Long[] categories, String rangeStart,
                                String rangeEnd, int from, int size);
 
     EventFullDto update(long eventId, UpdateEventRequest updateEventRequest);

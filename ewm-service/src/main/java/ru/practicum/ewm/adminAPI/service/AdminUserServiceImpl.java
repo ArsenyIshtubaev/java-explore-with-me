@@ -6,9 +6,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ewm.adminAPI.dto.UserDto;
-import ru.practicum.ewm.adminAPI.dto.UserMapper;
-import ru.practicum.ewm.repository.UserRepository;
+import ru.practicum.ewm.common.dto.UserDto;
+import ru.practicum.ewm.common.dto.UserMapper;
+import ru.practicum.ewm.common.repository.UserRepository;
 
 import java.util.Arrays;
 import java.util.List;
