@@ -26,16 +26,18 @@ public class PublicCompilationServiceImpl implements PublicCompilationService {
     private final EventMapper eventMapper;
     private final RequestRepository requestRepository;
     private final UserMapper userMapper;
-    private final CategoryMapper categoryMapper;
 
     @Autowired
-    public PublicCompilationServiceImpl(CompilationRepository compilationRepository, CompilationMapper compilationMapper, EventMapper eventMapper, RequestRepository requestRepository, UserMapper userMapper, CategoryMapper categoryMapper) {
+    public PublicCompilationServiceImpl(CompilationRepository compilationRepository,
+                                        CompilationMapper compilationMapper,
+                                        EventMapper eventMapper,
+                                        RequestRepository requestRepository,
+                                        UserMapper userMapper) {
         this.compilationRepository = compilationRepository;
         this.compilationMapper = compilationMapper;
         this.eventMapper = eventMapper;
         this.requestRepository = requestRepository;
         this.userMapper = userMapper;
-        this.categoryMapper = categoryMapper;
     }
 
     @Override
