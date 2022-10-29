@@ -59,9 +59,6 @@ public class PublicEventServiceImpl implements PublicEventService {
             throw new StorageException("Событие с Id = " + id + " не опубликованно");
         }
 
-        /* event.setViews(event.getViews() + 1);
-        eventRepository.save(event); */
-
         hitClient.save(EndpointHit.builder().app("ewm-service")
                 .timestamp(DateTimeMapper.toString(LocalDateTime.now()))
                 .uri(request.getRequestURI())
@@ -118,9 +115,6 @@ public class PublicEventServiceImpl implements PublicEventService {
                     .filter(event1 -> event1.getParticipantLimit() > getConfirmedRequest(event1.getId()))
                     .collect(Collectors.toList());
         }
-        /*result.stream()
-                .peek(event1 -> event1.setViews(event1.getViews() + 1))
-                .peek(eventRepository::save); */
 
         result.stream().peek(event1 -> hitClient.save(EndpointHit.builder().app("ewm-service")
                 .timestamp(DateTimeMapper.toString(LocalDateTime.now()))

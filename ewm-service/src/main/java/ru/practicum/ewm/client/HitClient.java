@@ -8,9 +8,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.ewm.common.dto.EndpointHit;
-import ru.practicum.ewm.common.dto.ViewStats;
 
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -35,7 +33,7 @@ public class HitClient extends BaseClient {
     public ResponseEntity<Object> getStats(String[] uris, String start, String end, Boolean unique) {
 
         StringBuilder uriString = new StringBuilder();
-        for (String uri : uris){
+        for (String uri : uris) {
             uriString.append("uris=").append(uri).append("&");
         }
         Map<String, Object> parameters = Map.of(

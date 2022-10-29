@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class PublicCategoryServiceImpl implements PublicCategoryService{
+public class PublicCategoryServiceImpl implements PublicCategoryService {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
