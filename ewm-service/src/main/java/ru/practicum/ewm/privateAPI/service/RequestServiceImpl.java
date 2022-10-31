@@ -79,7 +79,7 @@ public class RequestServiceImpl implements RequestService {
     public ParticipationRequestDto cancelRequest(long userId, long requestId) {
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new StorageException("Request with Id = " + requestId + " not found"));
-        if (request.getRequester().getId() != userId){
+        if (request.getRequester().getId() != userId) {
             throw new ForbiddenException("User can't cancel someone else's request");
         }
         request.setStatus(State.CANCELED);

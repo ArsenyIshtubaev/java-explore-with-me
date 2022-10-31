@@ -8,7 +8,6 @@ import ru.practicum.ewm.common.dto.EventFullDto;
 import ru.practicum.ewm.common.dto.UpdateEventRequest;
 import ru.practicum.ewm.common.enums.State;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
