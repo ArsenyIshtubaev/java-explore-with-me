@@ -11,6 +11,7 @@ import ru.practicum.ewm.common.exception.ForbiddenException;
 import ru.practicum.ewm.common.exception.StorageException;
 import ru.practicum.ewm.common.model.Event;
 import ru.practicum.ewm.common.model.Request;
+import ru.practicum.ewm.common.model.User;
 import ru.practicum.ewm.common.repository.EventRepository;
 import ru.practicum.ewm.common.repository.RequestRepository;
 import ru.practicum.ewm.common.repository.UserRepository;
@@ -46,6 +47,8 @@ public class RequestServiceImpl implements RequestService {
 
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new StorageException("Event with Id = " + eventId + " not found"));
+        User requester = userRepository.findById(userId)
+                .orElseThrow(() -> new StorageException("User with Id = " + userId + " not found"));
         if (event.getInitiator().getId().equals(userId)) {
             throw new ForbiddenException("initiator of the event cannot add a request to participate in his event");
         }
@@ -63,7 +66,7 @@ public class RequestServiceImpl implements RequestService {
             status = State.PENDING;
         }
         Request request = Request.builder()
-                .requester(event.getInitiator())
+                .requester(requester)
                 .event(event)
                 .status(status)
                 .created(LocalDateTime.now())
@@ -76,8 +79,8 @@ public class RequestServiceImpl implements RequestService {
     public ParticipationRequestDto cancelRequest(long userId, long requestId) {
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new StorageException("Request with Id = " + requestId + " not found"));
-        if (request.getRequester().getId() != userId) {
-            throw new ForbiddenException("User with Id = " + userId + " don't have requests");
+        if (request.getRequester().getId() != userId){
+            throw new ForbiddenException("User can't cancel someone else's request");
         }
         request.setStatus(State.CANCELED);
         return toParticipationRequestDto(requestRepository.save(request));

@@ -33,7 +33,7 @@ public class AdminEventController {
 
     @PutMapping("/{eventId}")
     public EventFullDto update(@PathVariable long eventId,
-                               @RequestBody @Valid UpdateEventRequest updateEventRequest) {
+                               @RequestBody UpdateEventRequest updateEventRequest) {
         log.info("Update event id={}", eventId);
         return adminEventService.update(eventId, updateEventRequest);
     }

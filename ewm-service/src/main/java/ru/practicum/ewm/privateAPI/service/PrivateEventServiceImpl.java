@@ -205,7 +205,6 @@ public class PrivateEventServiceImpl implements PrivateEventService {
                 .orElseThrow(() -> new StorageException("Event with Id = " + eventId + " not found"));
         Request request = requestRepository.findById(reqId)
                 .orElseThrow(() -> new StorageException("Request with Id = " + reqId + " not found"));
-
         request.setStatus(State.REJECTED);
         return toParticipationRequestDto(requestRepository.save(request));
     }
