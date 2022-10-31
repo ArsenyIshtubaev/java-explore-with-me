@@ -9,6 +9,6 @@ public interface HitService {
 
     EndpointHit save(EndpointHit endpointHit);
 
-    List<ViewStats> findStats(String[] uris, String start, String end, Boolean unique);
+    List<ViewStats> findStats(List<String> uris, String start, String end, Boolean unique);
 
 }

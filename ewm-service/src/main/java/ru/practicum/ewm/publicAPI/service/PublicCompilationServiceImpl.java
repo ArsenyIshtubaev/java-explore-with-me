@@ -1,10 +1,11 @@
 package ru.practicum.ewm.publicAPI.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.common.dto.*;
 import ru.practicum.ewm.common.enums.State;
 import ru.practicum.ewm.common.exception.StorageException;
@@ -17,34 +18,23 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static ru.practicum.ewm.common.dto.CompilationMapper.toCompilationDto;
+
 @Slf4j
 @Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class PublicCompilationServiceImpl implements PublicCompilationService {
 
     private final CompilationRepository compilationRepository;
-    private final CompilationMapper compilationMapper;
     private final EventMapper eventMapper;
     private final RequestRepository requestRepository;
-    private final UserMapper userMapper;
-
-    @Autowired
-    public PublicCompilationServiceImpl(CompilationRepository compilationRepository,
-                                        CompilationMapper compilationMapper,
-                                        EventMapper eventMapper,
-                                        RequestRepository requestRepository,
-                                        UserMapper userMapper) {
-        this.compilationRepository = compilationRepository;
-        this.compilationMapper = compilationMapper;
-        this.eventMapper = eventMapper;
-        this.requestRepository = requestRepository;
-        this.userMapper = userMapper;
-    }
 
     @Override
     public CompilationDto findById(long id) {
         Compilation compilation = compilationRepository.findById(id)
                 .orElseThrow(() -> new StorageException("Подборки событий с Id = " + id + " нет в БД"));
-        return compilationMapper.toCompilationDto(compilation, getShortEvents(compilation));
+        return toCompilationDto(compilation, getShortEvents(compilation));
     }
 
     @Override
@@ -53,12 +43,12 @@ public class PublicCompilationServiceImpl implements PublicCompilationService {
         if (pinned != null) {
             return compilationRepository.findAllByPinned(pinned, pageable)
                     .stream()
-                    .map(compilation -> compilationMapper.toCompilationDto(compilation, getShortEvents(compilation)))
+                    .map(compilation -> toCompilationDto(compilation, getShortEvents(compilation)))
                     .collect(Collectors.toList());
         }
         return compilationRepository.findAll(pageable)
                 .stream()
-                .map(compilation -> compilationMapper.toCompilationDto(compilation, getShortEvents(compilation)))
+                .map(compilation -> toCompilationDto(compilation, getShortEvents(compilation)))
                 .collect(Collectors.toList());
     }
 
@@ -74,7 +64,7 @@ public class PublicCompilationServiceImpl implements PublicCompilationService {
     private Set<EventShortDto> getShortEvents(Compilation compilation) {
         return compilation.getEvents().stream()
                 .map(event -> eventMapper.toEventShortDto(event,
-                        getConfirmedRequest(event.getId()), userMapper))
+                        getConfirmedRequest(event.getId())))
                 .collect(Collectors.toSet());
     }
 }

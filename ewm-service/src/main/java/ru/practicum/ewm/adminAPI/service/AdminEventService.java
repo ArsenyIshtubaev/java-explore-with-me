@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface AdminEventService {
 
-    List<EventFullDto> findAll(Long[] users, State[] states, Long[] categories, String rangeStart,
+    List<EventFullDto> findAll(List<Long> users, List<State> states, List<Long> categories, String rangeStart,
                                String rangeEnd, int from, int size);
 
     EventFullDto update(long eventId, UpdateEventRequest updateEventRequest);

@@ -1,6 +1,7 @@
 package ru.practicum.ewm.common.dto;
 
 import com.google.gson.Gson;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -13,18 +14,15 @@ import ru.practicum.ewm.common.utills.DateTimeMapper;
 
 import java.time.LocalDateTime;
 
+import static ru.practicum.ewm.common.dto.CategoryMapper.toCategoryDto;
+import static ru.practicum.ewm.common.dto.UserMapper.toUserDto;
+
 @Component
+@RequiredArgsConstructor
 public class EventMapper {
 
     private final CategoryRepository categoryRepository;
-    private final CategoryMapper categoryMapper;
     private final HitClient hitClient;
-
-    public EventMapper(CategoryRepository categoryRepository, CategoryMapper categoryMapper, HitClient hitClient) {
-        this.categoryRepository = categoryRepository;
-        this.categoryMapper = categoryMapper;
-        this.hitClient = hitClient;
-    }
 
     public Event toEvent(NewEventDto newEventDto, User initiator) {
         if (newEventDto.getParticipantLimit() == null) {
@@ -65,7 +63,7 @@ public class EventMapper {
         }
         return new EventFullDto(event.getId(),
                 event.getAnnotation(),
-                categoryMapper.toCategoryDto(event.getCategory()),
+                toCategoryDto(event.getCategory()),
                 confirmedRequest,
                 DateTimeMapper.toString(event.getCreatedOn()),
                 event.getDescription(),
@@ -81,8 +79,7 @@ public class EventMapper {
                 views);
     }
 
-    public EventShortDto toEventShortDto(Event event, Integer confirmedRequest,
-                                         UserMapper userMapper) {
+    public EventShortDto toEventShortDto(Event event, Integer confirmedRequest) {
         Gson gson = new Gson();
         Integer views = 0;
         String[] uris = new String[]{"http://ewm-service:8080/events/" + event.getId()};
@@ -97,12 +94,12 @@ public class EventMapper {
         }
         return new EventShortDto(event.getId(),
                 event.getAnnotation(),
-                categoryMapper.toCategoryDto(event.getCategory()),
+                toCategoryDto(event.getCategory()),
                 DateTimeMapper.toString(event.getEventDate()),
                 event.getPaid(),
                 event.getTitle(),
                 confirmedRequest,
-                userMapper.toUserDto(event.getInitiator()),
+                toUserDto(event.getInitiator()),
                 views);
     }
 }

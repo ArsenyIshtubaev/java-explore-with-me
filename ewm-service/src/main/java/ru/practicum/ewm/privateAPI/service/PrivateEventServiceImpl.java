@@ -1,7 +1,7 @@
 package ru.practicum.ewm.privateAPI.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,35 +20,21 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ru.practicum.ewm.common.dto.RequestMapper.toParticipationRequestDto;
+import static ru.practicum.ewm.common.dto.UserMapper.toUserDto;
+
 @Slf4j
 @Service
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class PrivateEventServiceImpl implements PrivateEventService {
 
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
     private final RequestRepository requestRepository;
     private final CategoryRepository categoryRepository;
-    private final RequestMapper requestMapper;
     private final LocationRepository locationRepository;
-
-    @Autowired
-    public PrivateEventServiceImpl(EventRepository eventRepository, EventMapper eventMapper,
-                                   UserRepository userRepository, UserMapper userMapper,
-                                   RequestRepository requestRepository,
-                                   CategoryRepository categoryRepository, RequestMapper requestMapper,
-                                   LocationRepository locationRepository) {
-        this.eventRepository = eventRepository;
-        this.eventMapper = eventMapper;
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-        this.requestRepository = requestRepository;
-        this.categoryRepository = categoryRepository;
-        this.requestMapper = requestMapper;
-        this.locationRepository = locationRepository;
-    }
 
     @Override
     public EventFullDto findById(long userId, long eventId) {
@@ -57,7 +43,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new StorageException("Event with  Id = " + eventId + " not found"));
         eventRepository.save(event);
-        return eventMapper.toEventFullDto(event, getConfirmedRequest(eventId), userMapper.toUserDto(initiator));
+        return eventMapper.toEventFullDto(event, getConfirmedRequest(eventId), toUserDto(initiator));
     }
 
     @Override
@@ -67,8 +53,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
                 .orElseThrow(() -> new StorageException("User with Id = " + userId + " not found"));
         return eventRepository.findByInitiatorId(userId, pageable)
                 .stream()
-                .map(event -> eventMapper.toEventShortDto(event, getConfirmedRequest(event.getId()),
-                        userMapper))
+                .map(event -> eventMapper.toEventShortDto(event, getConfirmedRequest(event.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -94,7 +79,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         Event event = eventRepository.save(eventMapper.toEvent(newEventDto, initiator));
         return eventMapper.toEventFullDto(event,
                 0,
-                userMapper.toUserDto(initiator));
+                toUserDto(initiator));
     }
 
     @Override
@@ -150,7 +135,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
             event.setTitle(updateEventRequest.getTitle());
         }
         return eventMapper.toEventFullDto(eventRepository.save(event),
-                getConfirmedRequest(eventId), userMapper.toUserDto(initiator));
+                getConfirmedRequest(eventId), toUserDto(initiator));
     }
 
     @Override
@@ -165,7 +150,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         }
         event.setState(State.CANCELED);
         return eventMapper.toEventFullDto(eventRepository.save(event),
-                getConfirmedRequest(eventId), userMapper.toUserDto(initiator));
+                getConfirmedRequest(eventId), toUserDto(initiator));
     }
 
     @Override
@@ -179,7 +164,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         }
         return requestRepository.findAllByEventId(eventId)
                 .stream()
-                .map(requestMapper::toParticipationRequestDto)
+                .map(RequestMapper::toParticipationRequestDto)
                 .collect(Collectors.toList());
     }
 
@@ -208,7 +193,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
                     .map(requestRepository::save)
                     .collect(Collectors.toList());
         }
-        return requestMapper.toParticipationRequestDto(requestRepository.save(request));
+        return toParticipationRequestDto(requestRepository.save(request));
     }
 
     @Override
@@ -222,6 +207,6 @@ public class PrivateEventServiceImpl implements PrivateEventService {
                 .orElseThrow(() -> new StorageException("Request with Id = " + reqId + " not found"));
 
         request.setStatus(State.REJECTED);
-        return requestMapper.toParticipationRequestDto(requestRepository.save(request));
+        return toParticipationRequestDto(requestRepository.save(request));
     }
 }

@@ -1,7 +1,7 @@
 package ru.practicum.ewm.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.EndpointHit;
 import ru.practicum.ewm.dto.ViewStats;
@@ -11,18 +11,14 @@ import java.util.List;
 
 @RestController
 @Slf4j
+@RequiredArgsConstructor
 @RequestMapping
 public class HitController {
 
     private final HitService hitService;
 
-    @Autowired
-    public HitController(HitService hitService) {
-        this.hitService = hitService;
-    }
-
     @GetMapping("/stats")
-    public List<ViewStats> findStats(@RequestParam(required = true) String[] uris,
+    public List<ViewStats> findStats(@RequestParam(required = true) List<String> uris,
                                      @RequestParam(required = true) String start,
                                      @RequestParam(required = true) String end,
                                      @RequestParam(defaultValue = "false") Boolean unique) {

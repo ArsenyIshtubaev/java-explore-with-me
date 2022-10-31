@@ -1,7 +1,7 @@
 package ru.practicum.ewm.publicAPI.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.common.dto.EventFullDto;
 import ru.practicum.ewm.publicAPI.service.PublicEventService;
@@ -11,19 +11,15 @@ import java.util.List;
 
 @RestController
 @Slf4j
+@RequiredArgsConstructor
 @RequestMapping("/events")
 public class PublicEventController {
 
     private final PublicEventService publicEventService;
 
-    @Autowired
-    public PublicEventController(PublicEventService publicEventService) {
-        this.publicEventService = publicEventService;
-    }
-
     @GetMapping
     public List<EventFullDto> findAll(@RequestParam(required = false) String text,
-                                      @RequestParam(required = false) Long[] categories,
+                                      @RequestParam(required = false) List<Long> categories,
                                       @RequestParam(required = false) Boolean paid,
                                       @RequestParam(required = false) String rangeStart,
                                       @RequestParam(required = false) String rangeEnd,

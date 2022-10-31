@@ -1,5 +1,6 @@
 package ru.practicum.ewm.adminAPI.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,32 +20,20 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static ru.practicum.ewm.common.dto.CompilationMapper.toCompilation;
+import static ru.practicum.ewm.common.dto.CompilationMapper.toCompilationDto;
+
 @Slf4j
 @Service
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AdminCompilationServiceImpl implements AdminCompilationService {
 
 
     private final CompilationRepository compilationRepository;
-    private final CompilationMapper compilationMapper;
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
     private final RequestRepository requestRepository;
-    private final UserMapper userMapper;
-
-    public AdminCompilationServiceImpl(CompilationRepository compilationRepository,
-                                       CompilationMapper compilationMapper,
-                                       EventRepository eventRepository,
-                                       EventMapper eventMapper,
-                                       RequestRepository requestRepository,
-                                       UserMapper userMapper) {
-        this.compilationRepository = compilationRepository;
-        this.compilationMapper = compilationMapper;
-        this.eventRepository = eventRepository;
-        this.eventMapper = eventMapper;
-        this.requestRepository = requestRepository;
-        this.userMapper = userMapper;
-    }
 
     @Override
     @Transactional
@@ -57,10 +46,10 @@ public class AdminCompilationServiceImpl implements AdminCompilationService {
                     .collect(Collectors.toSet());
         }
         Set<EventShortDto> eventShortDtos = eventSet.stream()
-                .map(event -> eventMapper.toEventShortDto(event, getConfirmedRequest(event.getId()), userMapper))
+                .map(event -> eventMapper.toEventShortDto(event, getConfirmedRequest(event.getId())))
                 .collect(Collectors.toSet());
-        return compilationMapper.toCompilationDto(compilationRepository
-                .save(compilationMapper.toCompilation(newCompilationDto, eventSet)), eventShortDtos);
+        return toCompilationDto(compilationRepository
+                .save(toCompilation(newCompilationDto, eventSet)), eventShortDtos);
     }
 
     private int getConfirmedRequest(long eventId) {
@@ -93,7 +82,7 @@ public class AdminCompilationServiceImpl implements AdminCompilationService {
 
     @Override
     @Transactional
-    public void updateCompilation(long compId, long eventId) {
+    public void addEventInCompilation(long compId, long eventId) {
 
         Compilation compilation = compilationRepository.findById(compId)
                 .orElseThrow(() -> new StorageException("Compilation with Id = " + compId + " not found"));
@@ -105,7 +94,7 @@ public class AdminCompilationServiceImpl implements AdminCompilationService {
 
     @Override
     @Transactional
-    public void deletePinById(long compId) {
+    public void unpin(long compId) {
 
         Compilation compilation = compilationRepository.findById(compId)
                 .orElseThrow(() -> new StorageException("Compilation with Id = " + compId + " not found"));
@@ -115,7 +104,7 @@ public class AdminCompilationServiceImpl implements AdminCompilationService {
 
     @Override
     @Transactional
-    public void updatePin(long compId) {
+    public void pin(long compId) {
 
         Compilation compilation = compilationRepository.findById(compId)
                 .orElseThrow(() -> new StorageException("Compilation with Id = " + compId + " not found"));

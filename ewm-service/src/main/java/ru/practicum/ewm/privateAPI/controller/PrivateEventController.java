@@ -1,24 +1,21 @@
 package ru.practicum.ewm.privateAPI.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.common.dto.*;
 import ru.practicum.ewm.privateAPI.service.PrivateEventService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 @Slf4j
+@RequiredArgsConstructor
 @RequestMapping("/users/{userId}/events")
 public class PrivateEventController {
 
     private final PrivateEventService privateEventService;
-
-    @Autowired
-    public PrivateEventController(PrivateEventService privateEventService) {
-        this.privateEventService = privateEventService;
-    }
 
     @GetMapping("/{eventId}")
     public EventFullDto findCategoryById(@PathVariable long userId,
@@ -28,7 +25,7 @@ public class PrivateEventController {
     }
 
     @PostMapping
-    public EventFullDto create(@PathVariable long userId, @RequestBody NewEventDto newEventDto) {
+    public EventFullDto create(@PathVariable long userId, @RequestBody @Valid NewEventDto newEventDto) {
         log.info("POST : '{}', event annotation={}", "/users/{userId}/events",
                 newEventDto.getAnnotation());
         return privateEventService.save(userId, newEventDto);
@@ -43,7 +40,7 @@ public class PrivateEventController {
 
     @PatchMapping
     public EventFullDto update(@PathVariable long userId,
-                               @RequestBody UpdateEventRequest updateEventRequest) {
+                               @RequestBody @Valid UpdateEventRequest updateEventRequest) {
         log.info("PATCH event id={}, annotation={}", updateEventRequest.getEventId(),
                 updateEventRequest.getAnnotation());
         return privateEventService.update(userId, updateEventRequest);

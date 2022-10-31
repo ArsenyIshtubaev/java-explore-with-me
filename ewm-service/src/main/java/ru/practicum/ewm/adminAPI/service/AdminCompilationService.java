@@ -11,10 +11,10 @@ public interface AdminCompilationService {
 
     void deleteEventById(long compId, long eventId);
 
-    void updateCompilation(long compId, long eventId);
+    void addEventInCompilation(long compId, long eventId);
 
-    void deletePinById(long compId);
+    void unpin(long compId);
 
-    void updatePin(long compId);
+    void pin(long compId);
 
 }

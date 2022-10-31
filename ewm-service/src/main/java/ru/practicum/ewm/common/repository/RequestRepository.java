@@ -2,6 +2,7 @@ package ru.practicum.ewm.common.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.ewm.common.enums.State;
+import ru.practicum.ewm.common.model.Event;
 import ru.practicum.ewm.common.model.Request;
 
 import java.util.List;

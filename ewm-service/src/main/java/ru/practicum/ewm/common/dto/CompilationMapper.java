@@ -1,6 +1,7 @@
 package ru.practicum.ewm.common.dto;
 
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.ewm.common.model.Compilation;
 import ru.practicum.ewm.common.model.Event;
@@ -9,9 +10,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
-public class CompilationMapper {
+@RequiredArgsConstructor
+public final class CompilationMapper {
 
-    public Compilation toCompilation(NewCompilationDto newCompilationDto, Set<Event> events) {
+    public static Compilation toCompilation(NewCompilationDto newCompilationDto, Set<Event> events) {
         if (newCompilationDto.getPinned() == null) {
             newCompilationDto.setPinned(false);
         }
@@ -22,7 +24,7 @@ public class CompilationMapper {
         );
     }
 
-    public NewCompilationDto toNewCompilation(Compilation compilation) {
+    public static NewCompilationDto toNewCompilation(Compilation compilation) {
         Set<Long> events = compilation.getEvents()
                 .stream()
                 .map(Event::getId)
@@ -33,7 +35,7 @@ public class CompilationMapper {
                 events);
     }
 
-    public CompilationDto toCompilationDto(Compilation compilation, Set<EventShortDto> events) {
+    public static CompilationDto toCompilationDto(Compilation compilation, Set<EventShortDto> events) {
 
         return new CompilationDto(compilation.getId(),
                 compilation.getPinned(),

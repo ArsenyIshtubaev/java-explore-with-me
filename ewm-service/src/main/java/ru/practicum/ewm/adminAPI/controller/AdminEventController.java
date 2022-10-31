@@ -1,31 +1,28 @@
 package ru.practicum.ewm.adminAPI.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.adminAPI.service.AdminEventService;
 import ru.practicum.ewm.common.dto.EventFullDto;
 import ru.practicum.ewm.common.dto.UpdateEventRequest;
 import ru.practicum.ewm.common.enums.State;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 @Slf4j
+@RequiredArgsConstructor
 @RequestMapping("/admin/events")
 public class AdminEventController {
 
     private final AdminEventService adminEventService;
 
-    @Autowired
-    public AdminEventController(AdminEventService adminEventService) {
-        this.adminEventService = adminEventService;
-    }
-
-    @GetMapping()
-    public List<EventFullDto> findAll(@RequestParam(required = false) Long[] users,
-                                      @RequestParam(required = false) State[] states,
-                                      @RequestParam(required = false) Long[] categories,
+    @GetMapping
+    public List<EventFullDto> findAll(@RequestParam(required = false) List<Long> users,
+                                      @RequestParam(required = false) List<State> states,
+                                      @RequestParam(required = false) List<Long> categories,
                                       @RequestParam(required = false) String rangeStart,
                                       @RequestParam(required = false) String rangeEnd,
                                       @RequestParam(defaultValue = "0") int from,
@@ -36,7 +33,7 @@ public class AdminEventController {
 
     @PutMapping("/{eventId}")
     public EventFullDto update(@PathVariable long eventId,
-                               @RequestBody UpdateEventRequest updateEventRequest) {
+                               @RequestBody @Valid UpdateEventRequest updateEventRequest) {
         log.info("Update event id={}", eventId);
         return adminEventService.update(eventId, updateEventRequest);
     }

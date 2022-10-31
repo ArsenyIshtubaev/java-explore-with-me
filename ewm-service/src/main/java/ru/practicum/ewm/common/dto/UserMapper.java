@@ -1,18 +1,20 @@
 package ru.practicum.ewm.common.dto;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.ewm.common.model.User;
 
 @Component
-public class UserMapper {
+@RequiredArgsConstructor
+public final class UserMapper {
 
-    public UserDto toUserDto(User user) {
+    public static UserDto toUserDto(User user) {
         return new UserDto(user.getId(),
                 user.getEmail(),
                 user.getName());
     }
 
-    public User toUser(UserDto userDto) {
+    public static User toUser(UserDto userDto) {
         return new User(userDto.getId(),
                 userDto.getEmail(),
                 userDto.getName());

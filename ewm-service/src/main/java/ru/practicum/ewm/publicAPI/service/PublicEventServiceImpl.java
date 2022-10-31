@@ -1,13 +1,14 @@
 package ru.practicum.ewm.publicAPI.service;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.client.HitClient;
 import ru.practicum.ewm.common.dto.EndpointHit;
 import ru.practicum.ewm.common.dto.EventFullDto;
@@ -28,27 +29,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ru.practicum.ewm.common.dto.UserMapper.toUserDto;
+
 @Slf4j
 @Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class PublicEventServiceImpl implements PublicEventService {
 
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
     private final RequestRepository requestRepository;
-    private final UserMapper userMapper;
     private final HitClient hitClient;
-
-    @Autowired
-    public PublicEventServiceImpl(EventRepository eventRepository,
-                                  EventMapper eventMapper,
-                                  RequestRepository requestRepository,
-                                  UserMapper userMapper, HitClient hitClient) {
-        this.eventRepository = eventRepository;
-        this.eventMapper = eventMapper;
-        this.requestRepository = requestRepository;
-        this.userMapper = userMapper;
-        this.hitClient = hitClient;
-    }
 
     @Override
     public EventFullDto findById(long id, HttpServletRequest request) {
@@ -66,11 +58,11 @@ public class PublicEventServiceImpl implements PublicEventService {
 
         return eventMapper.toEventFullDto(event,
                 getConfirmedRequest(event.getId()),
-                userMapper.toUserDto(event.getInitiator()));
+                toUserDto(event.getInitiator()));
     }
 
     @Override
-    public List<EventFullDto> findAll(String text, Long[] categories, Boolean paid, String rangeStart,
+    public List<EventFullDto> findAll(String text, List<Long> categories, Boolean paid, String rangeStart,
                                       String rangeEnd, Boolean onlyAvailable, String sort, int from, int size,
                                       HttpServletRequest request) {
 
@@ -90,7 +82,7 @@ public class PublicEventServiceImpl implements PublicEventService {
         if (text != null) {
             conditions.add(event.description.like(text).or(event.annotation.like(text)));
         }
-        if (categories != null) {
+        if (categories != null && !categories.isEmpty()) {
             conditions.add(event.category.id.in(categories));
         }
         if (paid != null) {
@@ -124,7 +116,7 @@ public class PublicEventServiceImpl implements PublicEventService {
         return result.stream()
                 .map(event1 -> eventMapper.toEventFullDto(event1,
                         getConfirmedRequest(event1.getId()),
-                        userMapper.toUserDto(event1.getInitiator())))
+                        toUserDto(event1.getInitiator())))
                 .collect(Collectors.toList());
 
     }

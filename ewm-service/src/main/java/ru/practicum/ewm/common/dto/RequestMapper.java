@@ -5,9 +5,9 @@ import ru.practicum.ewm.common.model.Request;
 import ru.practicum.ewm.common.utills.DateTimeMapper;
 
 @Component
-public class RequestMapper {
+public final class RequestMapper {
 
-    public ParticipationRequestDto toParticipationRequestDto(Request request) {
+    public static ParticipationRequestDto toParticipationRequestDto(Request request) {
         return new ParticipationRequestDto(request.getId(),
                 request.getEvent().getId(),
                 request.getRequester().getId(),

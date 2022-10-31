@@ -1,7 +1,7 @@
 package ru.practicum.ewm.adminAPI.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -10,35 +10,31 @@ import ru.practicum.ewm.common.dto.UserDto;
 import ru.practicum.ewm.common.dto.UserMapper;
 import ru.practicum.ewm.common.repository.UserRepository;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ru.practicum.ewm.common.dto.UserMapper.toUser;
+import static ru.practicum.ewm.common.dto.UserMapper.toUserDto;
+
 @Slf4j
 @Service
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AdminUserServiceImpl implements AdminUserService {
 
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
-
-    @Autowired
-    public AdminUserServiceImpl(UserRepository userRepository, UserMapper userMapper) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-    }
 
     @Override
-    public List<UserDto> findAll(Long[] ids, int from, int size) {
+    public List<UserDto> findAll(List<Long> ids, int from, int size) {
         Pageable pageable = PageRequest.of(from / size, size);
 
-        if (ids != null) {
-            return userRepository.findAllById(Arrays.asList(ids)).stream()
-                    .map(userMapper::toUserDto)
+        if (ids != null && !ids.isEmpty()) {
+            return userRepository.findAllById(ids).stream()
+                    .map(UserMapper::toUserDto)
                     .collect(Collectors.toList());
         } else {
             return userRepository.findAll(pageable).stream()
-                    .map(userMapper::toUserDto)
+                    .map(UserMapper::toUserDto)
                     .collect(Collectors.toList());
         }
     }
@@ -46,7 +42,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     @Transactional
     public UserDto save(UserDto userDto) {
-        return userMapper.toUserDto(userRepository.save(userMapper.toUser(userDto)));
+        return toUserDto(userRepository.save(toUser(userDto)));
     }
 
     @Override

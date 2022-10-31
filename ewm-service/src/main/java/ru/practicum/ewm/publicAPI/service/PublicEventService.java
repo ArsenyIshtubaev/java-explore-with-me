@@ -9,7 +9,7 @@ public interface PublicEventService {
 
     EventFullDto findById(long id, HttpServletRequest request);
 
-    List<EventFullDto> findAll(String text, Long[] categories, Boolean paid, String rangeStart,
+    List<EventFullDto> findAll(String text, List<Long> categories, Boolean paid, String rangeStart,
                                String rangeEnd, Boolean onlyAvailable, String sort, int from, int size,
                                HttpServletRequest request);
 

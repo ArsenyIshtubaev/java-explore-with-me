@@ -1,21 +1,21 @@
 package ru.practicum.ewm.common.dto;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class NewCompilationDto {
 
     private Long id;
     private Boolean pinned;
-    @NotNull
+    @NotBlank
     private String title;
     private Set<Long> events;
 

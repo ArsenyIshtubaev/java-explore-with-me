@@ -1,17 +1,19 @@
 package ru.practicum.ewm.common.dto;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.ewm.common.model.Category;
 
 @Component
-public class CategoryMapper {
+@RequiredArgsConstructor
+public final class CategoryMapper {
 
-    public CategoryDto toCategoryDto(Category category) {
+    public static CategoryDto toCategoryDto(Category category) {
         return new CategoryDto(category.getId(),
                 category.getName());
     }
 
-    public Category toCategory(CategoryDto categoryDto) {
+    public static Category toCategory(CategoryDto categoryDto) {
         return new Category(categoryDto.getId(),
                 categoryDto.getName());
     }
