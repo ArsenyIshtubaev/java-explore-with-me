@@ -22,12 +22,11 @@ import java.util.List;
 public class HitServiceImpl implements HitService {
 
     private final HitRepository hitRepository;
-    private final HitMapper hitMapper;
 
     @Override
     public EndpointHit save(EndpointHit endpointHit) {
-        Hit hit = hitMapper.toHit(endpointHit);
-        return hitMapper.toEndpointHi(hitRepository.save(hit));
+        Hit hit = HitMapper.toHit(endpointHit);
+        return HitMapper.toEndpointHi(hitRepository.save(hit));
     }
 
     @Override

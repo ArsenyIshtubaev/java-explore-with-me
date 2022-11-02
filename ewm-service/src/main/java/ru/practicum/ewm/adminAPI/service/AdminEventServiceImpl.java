@@ -7,9 +7,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewm.client.HitClient;
 import ru.practicum.ewm.common.dto.EventFullDto;
 import ru.practicum.ewm.common.dto.EventMapper;
 import ru.practicum.ewm.common.dto.UpdateEventRequest;
+import ru.practicum.ewm.common.dto.UserMapper;
 import ru.practicum.ewm.common.enums.State;
 import ru.practicum.ewm.common.exception.StorageException;
 import ru.practicum.ewm.common.model.Event;
@@ -25,8 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.practicum.ewm.common.dto.UserMapper.toUserDto;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -34,9 +34,9 @@ import static ru.practicum.ewm.common.dto.UserMapper.toUserDto;
 public class AdminEventServiceImpl implements AdminEventService {
 
     private final EventRepository eventRepository;
-    private final EventMapper eventMapper;
     private final RequestRepository requestRepository;
     private final CategoryRepository categoryRepository;
+    private final HitClient hitClient;
 
     @Override
     public List<EventFullDto> findAll(List<Long> users, List<State> states, List<Long> categories, String rangeStart,
@@ -63,9 +63,9 @@ public class AdminEventServiceImpl implements AdminEventService {
         BooleanExpression expression = conditions.stream()
                 .reduce(BooleanExpression::and)
                 .get();
-        return eventRepository.findAll(expression, pageable).stream().map(event1 -> eventMapper.toEventFullDto(event1,
+        return eventRepository.findAll(expression, pageable).stream().map(event1 -> EventMapper.toEventFullDto(event1,
                         getConfirmedRequest(event1.getId()),
-                        toUserDto(event1.getInitiator())))
+                        hitClient))
                 .collect(Collectors.toList());
     }
 
@@ -101,8 +101,9 @@ public class AdminEventServiceImpl implements AdminEventService {
             event.setTitle(updateEventRequest.getTitle());
         }
         event.setState(State.PENDING);
-        return eventMapper.toEventFullDto(eventRepository.save(event),
-                getConfirmedRequest(eventId), toUserDto(event.getInitiator()));
+        return EventMapper.toEventFullDto(eventRepository.save(event),
+                getConfirmedRequest(eventId),
+                hitClient);
     }
 
     @Override
@@ -112,8 +113,9 @@ public class AdminEventServiceImpl implements AdminEventService {
                 .orElseThrow(() -> new StorageException("Event with  Id = " + eventId + " not found"));
         event.setState(State.PUBLISHED);
         event.setPublishedOn(LocalDateTime.now());
-        return eventMapper.toEventFullDto(eventRepository.save(event),
-                getConfirmedRequest(eventId), toUserDto(event.getInitiator()));
+        return EventMapper.toEventFullDto(eventRepository.save(event),
+                getConfirmedRequest(eventId),
+                hitClient);
     }
 
     @Override
@@ -123,8 +125,9 @@ public class AdminEventServiceImpl implements AdminEventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new StorageException("Event with  Id = " + eventId + " not found"));
         event.setState(State.CANCELED);
-        return eventMapper.toEventFullDto(eventRepository.save(event),
-                getConfirmedRequest(eventId), toUserDto(event.getInitiator()));
+        return EventMapper.toEventFullDto(eventRepository.save(event),
+                getConfirmedRequest(eventId),
+                hitClient);
     }
 
     private int getConfirmedRequest(long eventId) {

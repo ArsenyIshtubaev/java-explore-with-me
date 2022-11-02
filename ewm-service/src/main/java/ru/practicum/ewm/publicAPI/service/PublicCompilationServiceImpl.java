@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewm.client.HitClient;
 import ru.practicum.ewm.common.dto.*;
 import ru.practicum.ewm.common.enums.State;
 import ru.practicum.ewm.common.exception.StorageException;
@@ -18,8 +19,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static ru.practicum.ewm.common.dto.CompilationMapper.toCompilationDto;
-
 @Slf4j
 @Service
 @Transactional(readOnly = true)
@@ -27,14 +26,14 @@ import static ru.practicum.ewm.common.dto.CompilationMapper.toCompilationDto;
 public class PublicCompilationServiceImpl implements PublicCompilationService {
 
     private final CompilationRepository compilationRepository;
-    private final EventMapper eventMapper;
     private final RequestRepository requestRepository;
+    private final HitClient hitClient;
 
     @Override
     public CompilationDto findById(long id) {
         Compilation compilation = compilationRepository.findById(id)
                 .orElseThrow(() -> new StorageException("Подборки событий с Id = " + id + " нет в БД"));
-        return toCompilationDto(compilation, getShortEvents(compilation));
+        return CompilationMapper.toCompilationDto(compilation, getShortEvents(compilation));
     }
 
     @Override
@@ -43,12 +42,12 @@ public class PublicCompilationServiceImpl implements PublicCompilationService {
         if (pinned != null) {
             return compilationRepository.findAllByPinned(pinned, pageable)
                     .stream()
-                    .map(compilation -> toCompilationDto(compilation, getShortEvents(compilation)))
+                    .map(compilation -> CompilationMapper.toCompilationDto(compilation, getShortEvents(compilation)))
                     .collect(Collectors.toList());
         }
         return compilationRepository.findAll(pageable)
                 .stream()
-                .map(compilation -> toCompilationDto(compilation, getShortEvents(compilation)))
+                .map(compilation -> CompilationMapper.toCompilationDto(compilation, getShortEvents(compilation)))
                 .collect(Collectors.toList());
     }
 
@@ -63,8 +62,8 @@ public class PublicCompilationServiceImpl implements PublicCompilationService {
 
     private Set<EventShortDto> getShortEvents(Compilation compilation) {
         return compilation.getEvents().stream()
-                .map(event -> eventMapper.toEventShortDto(event,
-                        getConfirmedRequest(event.getId())))
+                .map(event -> EventMapper.toEventShortDto(event,
+                        getConfirmedRequest(event.getId()), hitClient))
                 .collect(Collectors.toSet());
     }
 }

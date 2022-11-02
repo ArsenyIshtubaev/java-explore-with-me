@@ -24,13 +24,14 @@ public class RequestController {
 
     @PostMapping
     public ParticipationRequestDto create(@PathVariable long userId,
-                                          @RequestParam(required = true) long eventId) {
+                                          @RequestParam long eventId) {
         log.info("Post users requests userId={}, evenId={}", userId, eventId);
         return requestService.save(userId, eventId);
     }
 
     @PatchMapping("/{requestId}/cancel")
-    public ParticipationRequestDto cancelRequest(@PathVariable long userId, @PathVariable long requestId) {
+    public ParticipationRequestDto cancelRequest(@PathVariable long userId,
+                                                 @PathVariable long requestId) {
         log.info("PATCH userId={}, requestId={}", userId, requestId);
         return requestService.cancelRequest(userId, requestId);
     }

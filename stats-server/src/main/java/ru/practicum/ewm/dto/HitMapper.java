@@ -1,13 +1,14 @@
 package ru.practicum.ewm.dto;
 
-import org.springframework.stereotype.Component;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import ru.practicum.ewm.model.Hit;
 import ru.practicum.ewm.utills.DateTimeMapper;
 
-@Component
-public class HitMapper {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class HitMapper {
 
-    public EndpointHit toEndpointHi(Hit hit) {
+    public static EndpointHit toEndpointHi(Hit hit) {
         return new EndpointHit(hit.getId(),
                 hit.getApp(),
                 hit.getUri(),
@@ -15,7 +16,7 @@ public class HitMapper {
                 DateTimeMapper.toString(hit.getTimestamp()));
     }
 
-    public Hit toHit(EndpointHit endpointHit) {
+    public static Hit toHit(EndpointHit endpointHit) {
         return new Hit(endpointHit.getId(),
                 endpointHit.getApp(),
                 endpointHit.getUri(),

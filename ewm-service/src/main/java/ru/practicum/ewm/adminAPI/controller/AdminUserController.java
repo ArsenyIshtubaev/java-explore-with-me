@@ -21,7 +21,11 @@ public class AdminUserController {
     public List<UserDto> findAll(@RequestParam(required = false) List<Long> ids,
                                  @RequestParam(defaultValue = "0") int from,
                                  @RequestParam(defaultValue = "10") int size) {
-        return adminUserService.findAll(ids, from, size);
+        if (ids != null && !ids.isEmpty()) {
+            return adminUserService.findAllById(ids);
+        } else {
+            return adminUserService.findAllWithoutID(from, size);
+        }
     }
 
     @PostMapping

@@ -13,6 +13,7 @@ import ru.practicum.ewm.client.HitClient;
 import ru.practicum.ewm.common.dto.EndpointHit;
 import ru.practicum.ewm.common.dto.EventFullDto;
 import ru.practicum.ewm.common.dto.EventMapper;
+import ru.practicum.ewm.common.dto.UserMapper;
 import ru.practicum.ewm.common.enums.State;
 import ru.practicum.ewm.common.exception.StorageException;
 import ru.practicum.ewm.common.model.Event;
@@ -28,8 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.practicum.ewm.common.dto.UserMapper.toUserDto;
-
 @Slf4j
 @Service
 @Transactional(readOnly = true)
@@ -37,7 +36,6 @@ import static ru.practicum.ewm.common.dto.UserMapper.toUserDto;
 public class PublicEventServiceImpl implements PublicEventService {
 
     private final EventRepository eventRepository;
-    private final EventMapper eventMapper;
     private final RequestRepository requestRepository;
     private final HitClient hitClient;
 
@@ -55,9 +53,9 @@ public class PublicEventServiceImpl implements PublicEventService {
                 .uri(request.getRequestURI())
                 .ip(request.getRemoteAddr()).build());
 
-        return eventMapper.toEventFullDto(event,
+        return EventMapper.toEventFullDto(event,
                 getConfirmedRequest(event.getId()),
-                toUserDto(event.getInitiator()));
+                hitClient);
     }
 
     @Override
@@ -113,9 +111,9 @@ public class PublicEventServiceImpl implements PublicEventService {
                 .ip(request.getRemoteAddr()).build()));
 
         return result.stream()
-                .map(event1 -> eventMapper.toEventFullDto(event1,
+                .map(event1 -> EventMapper.toEventFullDto(event1,
                         getConfirmedRequest(event1.getId()),
-                        toUserDto(event1.getInitiator())))
+                        hitClient))
                 .collect(Collectors.toList());
 
     }

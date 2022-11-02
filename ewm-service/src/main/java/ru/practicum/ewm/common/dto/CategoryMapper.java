@@ -1,11 +1,10 @@
 package ru.practicum.ewm.common.dto;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import ru.practicum.ewm.common.model.Category;
 
-@Component
-@RequiredArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CategoryMapper {
 
     public static CategoryDto toCategoryDto(Category category) {

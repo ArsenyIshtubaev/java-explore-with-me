@@ -8,6 +8,7 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import ru.practicum.ewm.common.model.Event;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event>,
         QuerydslPredicateExecutor<Event> {
@@ -18,5 +19,7 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
     List<Event> search(String text, Pageable pageable);
 
     List<Event> findByInitiatorId(long userId, Pageable pageable);
+
+    Optional<Event> findByIdAndInitiatorId(long eventId, long userId);
 
 }

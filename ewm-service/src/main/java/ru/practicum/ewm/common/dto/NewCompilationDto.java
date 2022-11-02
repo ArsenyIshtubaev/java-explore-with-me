@@ -15,7 +15,6 @@ import java.util.Set;
 @NoArgsConstructor
 public class NewCompilationDto {
 
-    private Long id;
     private Boolean pinned;
     @NotBlank
     private String title;

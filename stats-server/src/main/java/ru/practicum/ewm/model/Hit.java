@@ -18,11 +18,11 @@ public class Hit implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "hit_id")
     private Long id;
-    @Column(name = "app", nullable = false)
+    @Column(nullable = false)
     private String app;
-    @Column(name = "uri", nullable = false)
+    @Column(nullable = false)
     private String uri;
-    @Column(name = "ip", nullable = false)
+    @Column(nullable = false)
     private String ip;
     @Column(name = "request_time")
     private LocalDateTime timestamp;

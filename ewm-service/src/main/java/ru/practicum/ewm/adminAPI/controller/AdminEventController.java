@@ -8,6 +8,7 @@ import ru.practicum.ewm.common.dto.EventFullDto;
 import ru.practicum.ewm.common.dto.UpdateEventRequest;
 import ru.practicum.ewm.common.enums.State;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -32,7 +33,7 @@ public class AdminEventController {
 
     @PutMapping("/{eventId}")
     public EventFullDto update(@PathVariable long eventId,
-                               @RequestBody UpdateEventRequest updateEventRequest) {
+                               @RequestBody @Valid UpdateEventRequest updateEventRequest) {
         log.info("Update event id={}", eventId);
         return adminEventService.update(eventId, updateEventRequest);
     }

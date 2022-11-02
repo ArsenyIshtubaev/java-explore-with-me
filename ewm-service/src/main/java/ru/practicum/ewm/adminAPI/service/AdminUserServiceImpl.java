@@ -13,9 +13,6 @@ import ru.practicum.ewm.common.repository.UserRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.practicum.ewm.common.dto.UserMapper.toUser;
-import static ru.practicum.ewm.common.dto.UserMapper.toUserDto;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -25,24 +22,24 @@ public class AdminUserServiceImpl implements AdminUserService {
     private final UserRepository userRepository;
 
     @Override
-    public List<UserDto> findAll(List<Long> ids, int from, int size) {
-        Pageable pageable = PageRequest.of(from / size, size);
+    public List<UserDto> findAllById(List<Long> ids) {
+        return userRepository.findAllById(ids).stream()
+                .map(UserMapper::toUserDto)
+                .collect(Collectors.toList());
+    }
 
-        if (ids != null && !ids.isEmpty()) {
-            return userRepository.findAllById(ids).stream()
-                    .map(UserMapper::toUserDto)
-                    .collect(Collectors.toList());
-        } else {
-            return userRepository.findAll(pageable).stream()
-                    .map(UserMapper::toUserDto)
-                    .collect(Collectors.toList());
-        }
+    @Override
+    public List<UserDto> findAllWithoutID(int from, int size) {
+        Pageable pageable = PageRequest.of(from / size, size);
+        return userRepository.findAll(pageable).stream()
+                .map(UserMapper::toUserDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
     public UserDto save(UserDto userDto) {
-        return toUserDto(userRepository.save(toUser(userDto)));
+        return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(userDto)));
     }
 
     @Override

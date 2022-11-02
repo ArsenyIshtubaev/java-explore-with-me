@@ -13,9 +13,6 @@ import ru.practicum.ewm.common.repository.CategoryRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.practicum.ewm.common.dto.CategoryMapper.toCategory;
-import static ru.practicum.ewm.common.dto.CategoryMapper.toCategoryDto;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -26,7 +23,7 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
 
     @Override
     public CategoryDto findById(long categoryId) {
-        return toCategoryDto(categoryRepository.findById(categoryId)
+        return CategoryMapper.toCategoryDto(categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new StorageException("Category with Id = " + categoryId + " not found")));
     }
 
@@ -40,7 +37,7 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
     @Override
     @Transactional
     public CategoryDto save(CategoryDto categoryDto) {
-        return toCategoryDto(categoryRepository.save(toCategory(categoryDto)));
+        return CategoryMapper.toCategoryDto(categoryRepository.save(CategoryMapper.toCategory(categoryDto)));
     }
 
     @Override
@@ -49,7 +46,7 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
         Category category = categoryRepository.findById(categoryDto.getId())
                 .orElseThrow(() -> new StorageException("Category with Id = " + categoryDto.getId() + " not found"));
         category.setName(categoryDto.getName());
-        return toCategoryDto(categoryRepository.save(category));
+        return CategoryMapper.toCategoryDto(categoryRepository.save(category));
     }
 
     @Override

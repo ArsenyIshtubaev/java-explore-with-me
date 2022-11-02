@@ -1,36 +1,29 @@
 package ru.practicum.ewm.common.dto;
 
 import com.google.gson.Gson;
-import lombok.RequiredArgsConstructor;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import ru.practicum.ewm.client.HitClient;
 import ru.practicum.ewm.common.enums.State;
+import ru.practicum.ewm.common.model.Category;
 import ru.practicum.ewm.common.model.Event;
 import ru.practicum.ewm.common.model.User;
-import ru.practicum.ewm.common.repository.CategoryRepository;
 import ru.practicum.ewm.common.utills.DateTimeMapper;
 
 import java.time.LocalDateTime;
 
-import static ru.practicum.ewm.common.dto.CategoryMapper.toCategoryDto;
-import static ru.practicum.ewm.common.dto.UserMapper.toUserDto;
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class EventMapper {
 
-@Component
-@RequiredArgsConstructor
-public class EventMapper {
-
-    private final CategoryRepository categoryRepository;
-    private final HitClient hitClient;
-
-    public Event toEvent(NewEventDto newEventDto, User initiator) {
+    public static Event toEvent(NewEventDto newEventDto, User initiator, Category category) {
         if (newEventDto.getParticipantLimit() == null) {
             newEventDto.setParticipantLimit(0);
         }
         return new Event(null,
                 newEventDto.getAnnotation(),
-                categoryRepository.findById(newEventDto.getCategory()).orElse(null),
+                category,
                 newEventDto.getDescription(),
                 DateTimeMapper.toDateTime(newEventDto.getEventDate()),
                 LocalDateTime.now(),
@@ -44,7 +37,7 @@ public class EventMapper {
                 State.PENDING);
     }
 
-    public EventFullDto toEventFullDto(Event event, Integer confirmedRequest, UserDto initiator) {
+    public static EventFullDto toEventFullDto(Event event, Integer confirmedRequest, HitClient hitClient) {
         Gson gson = new Gson();
         Integer views = 0;
         String published = null;
@@ -63,12 +56,12 @@ public class EventMapper {
         }
         return new EventFullDto(event.getId(),
                 event.getAnnotation(),
-                toCategoryDto(event.getCategory()),
+                CategoryMapper.toCategoryDto(event.getCategory()),
                 confirmedRequest,
                 DateTimeMapper.toString(event.getCreatedOn()),
                 event.getDescription(),
                 DateTimeMapper.toString(event.getEventDate()),
-                initiator,
+                UserMapper.toUserDto(event.getInitiator()),
                 event.getLocation(),
                 event.getPaid(),
                 event.getParticipantLimit(),
@@ -79,7 +72,7 @@ public class EventMapper {
                 views);
     }
 
-    public EventShortDto toEventShortDto(Event event, Integer confirmedRequest) {
+    public static EventShortDto toEventShortDto(Event event, Integer confirmedRequest, HitClient hitClient) {
         Gson gson = new Gson();
         Integer views = 0;
         String[] uris = new String[]{"http://ewm-service:8080/events/" + event.getId()};
@@ -94,12 +87,12 @@ public class EventMapper {
         }
         return new EventShortDto(event.getId(),
                 event.getAnnotation(),
-                toCategoryDto(event.getCategory()),
+                CategoryMapper.toCategoryDto(event.getCategory()),
                 DateTimeMapper.toString(event.getEventDate()),
                 event.getPaid(),
                 event.getTitle(),
                 confirmedRequest,
-                toUserDto(event.getInitiator()),
+                UserMapper.toUserDto(event.getInitiator()),
                 views);
     }
 }

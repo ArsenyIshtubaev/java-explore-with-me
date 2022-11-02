@@ -25,10 +25,10 @@ public class Request {
     @OneToOne
     @JoinColumn(name = "requester_id")
     private User requester;
-    @Column(name = "status", nullable = false)
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private State status;
-    @Column(name = "created", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime created;
 
 }

@@ -1,12 +1,11 @@
 package ru.practicum.ewm.common.dto;
 
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Component;
 import ru.practicum.ewm.common.model.Request;
 import ru.practicum.ewm.common.utills.DateTimeMapper;
 
-@Component
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class RequestMapper {
 
     public static ParticipationRequestDto toParticipationRequestDto(Request request) {

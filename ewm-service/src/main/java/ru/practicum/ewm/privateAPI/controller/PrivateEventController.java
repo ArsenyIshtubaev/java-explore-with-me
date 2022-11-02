@@ -25,7 +25,8 @@ public class PrivateEventController {
     }
 
     @PostMapping
-    public EventFullDto create(@PathVariable long userId, @RequestBody @Valid NewEventDto newEventDto) {
+    public EventFullDto create(@PathVariable long userId,
+                               @RequestBody @Valid NewEventDto newEventDto) {
         log.info("POST : '{}', event annotation={}", "/users/{userId}/events",
                 newEventDto.getAnnotation());
         return privateEventService.save(userId, newEventDto);

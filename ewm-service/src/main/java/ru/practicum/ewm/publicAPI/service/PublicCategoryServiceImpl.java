@@ -14,8 +14,6 @@ import ru.practicum.ewm.common.repository.CategoryRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.practicum.ewm.common.dto.CategoryMapper.toCategoryDto;
-
 @Slf4j
 @Service
 @Transactional(readOnly = true)
@@ -26,7 +24,7 @@ public class PublicCategoryServiceImpl implements PublicCategoryService {
 
     @Override
     public CategoryDto findById(long id) {
-        return toCategoryDto(categoryRepository.findById(id)
+        return CategoryMapper.toCategoryDto(categoryRepository.findById(id)
                 .orElseThrow(() -> new StorageException("Категории с Id = " + id + " нет в БД")));
     }
 

@@ -7,6 +7,8 @@ import ru.practicum.ewm.adminAPI.service.AdminCompilationService;
 import ru.practicum.ewm.common.dto.CompilationDto;
 import ru.practicum.ewm.common.dto.NewCompilationDto;
 
+import javax.validation.Valid;
+
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -16,7 +18,7 @@ public class AdminCompilationsController {
     private final AdminCompilationService adminCompilationService;
 
     @PostMapping
-    public CompilationDto create(@RequestBody NewCompilationDto newCompilationDto) {
+    public CompilationDto create(@RequestBody @Valid NewCompilationDto newCompilationDto) {
         log.info("POST : '{}', compilation title={}", "/admin/compilations",
                 newCompilationDto.getTitle());
         return adminCompilationService.save(newCompilationDto);
@@ -29,13 +31,15 @@ public class AdminCompilationsController {
     }
 
     @DeleteMapping("/{compId}/events/{eventId}")
-    public void deleteEventById(@PathVariable long compId, @PathVariable long eventId) {
+    public void deleteEventById(@PathVariable long compId,
+                                @PathVariable long eventId) {
         log.info("Delete event from compilation compId={}, eventId={}", compId, eventId);
         adminCompilationService.deleteEventById(compId, eventId);
     }
 
     @PatchMapping("/{compId}/events/{eventId}")
-    public void addEventInCompilation(@PathVariable long compId, @PathVariable long eventId) {
+    public void addEventInCompilation(@PathVariable long compId,
+                                      @PathVariable long eventId) {
         log.info("PATCH compilation id={}, eventId={}", compId, eventId);
         adminCompilationService.addEventInCompilation(compId, eventId);
     }

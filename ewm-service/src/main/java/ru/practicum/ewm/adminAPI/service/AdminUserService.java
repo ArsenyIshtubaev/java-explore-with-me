@@ -6,7 +6,9 @@ import java.util.List;
 
 public interface AdminUserService {
 
-    List<UserDto> findAll(List<Long> ids, int from, int size);
+    List<UserDto> findAllById(List<Long> ids);
+
+    List<UserDto> findAllWithoutID(int from, int size);
 
     UserDto save(UserDto userDto);
 

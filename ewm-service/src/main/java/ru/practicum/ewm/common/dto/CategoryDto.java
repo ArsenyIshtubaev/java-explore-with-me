@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 
 @Getter
@@ -15,8 +14,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class CategoryDto {
 
-    @NotNull
-    private long id;
+    private Long id;
     @NotBlank(message = "name should not be blank")
     private String name;
 

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewm.client.HitClient;
 import ru.practicum.ewm.common.dto.*;
 import ru.practicum.ewm.common.enums.State;
 import ru.practicum.ewm.common.exception.StorageException;
@@ -14,14 +15,10 @@ import ru.practicum.ewm.common.repository.CompilationRepository;
 import ru.practicum.ewm.common.repository.EventRepository;
 import ru.practicum.ewm.common.repository.RequestRepository;
 
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static ru.practicum.ewm.common.dto.CompilationMapper.toCompilation;
-import static ru.practicum.ewm.common.dto.CompilationMapper.toCompilationDto;
 
 @Slf4j
 @Service
@@ -32,8 +29,8 @@ public class AdminCompilationServiceImpl implements AdminCompilationService {
 
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
-    private final EventMapper eventMapper;
     private final RequestRepository requestRepository;
+    private final HitClient hitClient;
 
     @Override
     @Transactional
@@ -46,10 +43,10 @@ public class AdminCompilationServiceImpl implements AdminCompilationService {
                     .collect(Collectors.toSet());
         }
         Set<EventShortDto> eventShortDtos = eventSet.stream()
-                .map(event -> eventMapper.toEventShortDto(event, getConfirmedRequest(event.getId())))
+                .map(event -> EventMapper.toEventShortDto(event, getConfirmedRequest(event.getId()), hitClient))
                 .collect(Collectors.toSet());
-        return toCompilationDto(compilationRepository
-                .save(toCompilation(newCompilationDto, eventSet)), eventShortDtos);
+        return CompilationMapper.toCompilationDto(compilationRepository
+                .save(CompilationMapper.toCompilation(newCompilationDto, eventSet)), eventShortDtos);
     }
 
     private int getConfirmedRequest(long eventId) {

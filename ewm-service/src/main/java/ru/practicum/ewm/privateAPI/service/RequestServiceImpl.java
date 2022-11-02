@@ -20,8 +20,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.practicum.ewm.common.dto.RequestMapper.toParticipationRequestDto;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -34,8 +32,6 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public List<ParticipationRequestDto> findAll(long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new StorageException("User with Id = " + userId + " not found"));
         return requestRepository.findAllByRequesterId(userId).stream()
                 .map(RequestMapper::toParticipationRequestDto)
                 .collect(Collectors.toList());
@@ -45,22 +41,22 @@ public class RequestServiceImpl implements RequestService {
     @Transactional
     public ParticipationRequestDto save(long userId, long eventId) {
 
+        if (requestRepository.findByRequesterIdAndEventId(userId, eventId).isPresent()) {
+            throw new ForbiddenException("you can't recreate the same request");
+        }
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new StorageException("Event with Id = " + eventId + " not found"));
-        User requester = userRepository.findById(userId)
-                .orElseThrow(() -> new StorageException("User with Id = " + userId + " not found"));
-        if (event.getInitiator().getId().equals(userId)) {
-            throw new ForbiddenException("initiator of the event cannot add a request to participate in his event");
-        }
         if (!event.getState().equals(State.PUBLISHED)) {
             throw new ForbiddenException("the event can not to have status canceled or pending");
+        }
+        if (event.getInitiator().getId().equals(userId)) {
+            throw new ForbiddenException("initiator of the event cannot add a request to participate in his event");
         }
         if (event.getParticipantLimit() <= requestRepository.findAllByEventId(eventId).size()) {
             throw new ForbiddenException("the event has reached the limit of requests for participation");
         }
-        if (requestRepository.findByRequesterIdAndEventId(userId, eventId).isPresent()) {
-            throw new ForbiddenException("you can't recreate the same request");
-        }
+        User requester = userRepository.findById(userId)
+                .orElseThrow(() -> new StorageException("User with Id = " + userId + " not found"));
         State status = State.CONFIRMED;
         if (event.getRequestModeration()) {
             status = State.PENDING;
@@ -71,7 +67,7 @@ public class RequestServiceImpl implements RequestService {
                 .status(status)
                 .created(LocalDateTime.now())
                 .build();
-        return toParticipationRequestDto(requestRepository.save(request));
+        return RequestMapper.toParticipationRequestDto(requestRepository.save(request));
     }
 
     @Override
@@ -83,6 +79,6 @@ public class RequestServiceImpl implements RequestService {
             throw new ForbiddenException("User can't cancel someone else's request");
         }
         request.setStatus(State.CANCELED);
-        return toParticipationRequestDto(requestRepository.save(request));
+        return RequestMapper.toParticipationRequestDto(requestRepository.save(request));
     }
 }

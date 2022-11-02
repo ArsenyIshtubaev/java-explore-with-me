@@ -1,9 +1,9 @@
 package ru.practicum.ewm.common.dto;
 
-import lombok.*;
-import org.hibernate.validator.constraints.Length;
-
-import javax.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -11,11 +11,9 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class UpdateEventRequest {
 
-    @NotNull
     private Long eventId;
     private String annotation;
     private Long category;
-    @Length(min = 20, max = 7000)
     private String description;
     private String eventDate;
     private Boolean paid;

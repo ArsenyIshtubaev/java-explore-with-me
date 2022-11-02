@@ -1,11 +1,10 @@
 package ru.practicum.ewm.common.dto;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import ru.practicum.ewm.common.model.User;
 
-@Component
-@RequiredArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class UserMapper {
 
     public static UserDto toUserDto(User user) {
