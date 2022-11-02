@@ -13,7 +13,6 @@ import ru.practicum.ewm.client.HitClient;
 import ru.practicum.ewm.common.dto.EndpointHit;
 import ru.practicum.ewm.common.dto.EventFullDto;
 import ru.practicum.ewm.common.dto.EventMapper;
-import ru.practicum.ewm.common.dto.UserMapper;
 import ru.practicum.ewm.common.enums.State;
 import ru.practicum.ewm.common.exception.StorageException;
 import ru.practicum.ewm.common.model.Event;
