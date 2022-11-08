@@ -1,9 +1,12 @@
 package ru.practicum.ewm.privateAPI.service;
 
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.client.HitClient;
@@ -40,10 +43,9 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new StorageException("Event with Id = " + eventId +
                         " and initiatorId = " + userId + " not found"));
-        eventRepository.save(event);
         return EventMapper.toEventFullDto(event,
                 getConfirmedRequest(eventId),
-                hitClient);
+                getEventViews(event));
     }
 
     @Override
@@ -51,7 +53,9 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         Pageable pageable = PageRequest.of(from / size, size);
         return eventRepository.findByInitiatorId(userId, pageable)
                 .stream()
-                .map(event -> EventMapper.toEventShortDto(event, getConfirmedRequest(event.getId()), hitClient))
+                .map(event -> EventMapper.toEventShortDto(event,
+                        getConfirmedRequest(event.getId()),
+                        getEventViews(event)))
                 .collect(Collectors.toList());
     }
 
@@ -80,7 +84,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         Event event = eventRepository.save(EventMapper.toEvent(newEventDto, initiator, category));
         return EventMapper.toEventFullDto(event,
                 0,
-                hitClient);
+                getEventViews(event));
     }
 
     @Override
@@ -135,7 +139,8 @@ public class PrivateEventServiceImpl implements PrivateEventService {
             event.setTitle(updateEventRequest.getTitle());
         }
         return EventMapper.toEventFullDto(eventRepository.save(event),
-                getConfirmedRequest(eventId), hitClient);
+                getConfirmedRequest(eventId),
+                getEventViews(event));
     }
 
     @Override
@@ -149,7 +154,8 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         }
         event.setState(State.CANCELED);
         return EventMapper.toEventFullDto(eventRepository.save(event),
-                getConfirmedRequest(eventId), hitClient);
+                getConfirmedRequest(eventId),
+                getEventViews(event));
     }
 
     @Override
@@ -202,4 +208,21 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         request.setStatus(State.REJECTED);
         return RequestMapper.toParticipationRequestDto(requestRepository.save(request));
     }
+
+    private Integer getEventViews(Event event) {
+        Gson gson = new Gson();
+        Integer views = 0;
+        String[] uris = new String[]{"http://ewm-service:8080/events/" + event.getId()};
+        ResponseEntity<Object> objectResponseEntity = hitClient
+                .getStats(uris,
+                        DateTimeMapper.toString(event.getCreatedOn()),
+                        DateTimeMapper.toString(LocalDateTime.now()), false);
+        if (objectResponseEntity.getStatusCode() == HttpStatus.OK) {
+            String responseJson = gson.toJson(objectResponseEntity.getBody());
+            Stats stats = gson.fromJson(responseJson, Stats.class);
+            views = stats.getStats().stream().findFirst().orElseThrow().getHits();
+        }
+        return views;
+    }
+
 }

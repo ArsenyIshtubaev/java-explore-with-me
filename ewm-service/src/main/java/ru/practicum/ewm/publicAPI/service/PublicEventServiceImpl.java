@@ -1,5 +1,6 @@
 package ru.practicum.ewm.publicAPI.service;
 
+import com.google.gson.Gson;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,12 +8,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.client.HitClient;
 import ru.practicum.ewm.common.dto.EndpointHit;
 import ru.practicum.ewm.common.dto.EventFullDto;
 import ru.practicum.ewm.common.dto.EventMapper;
+import ru.practicum.ewm.common.dto.Stats;
 import ru.practicum.ewm.common.enums.State;
 import ru.practicum.ewm.common.exception.StorageException;
 import ru.practicum.ewm.common.model.Event;
@@ -42,9 +46,9 @@ public class PublicEventServiceImpl implements PublicEventService {
     public EventFullDto findById(long id, HttpServletRequest request) {
 
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new StorageException("События с Id = " + id + " нет в БД"));
+                .orElseThrow(() -> new StorageException("Event with Id = " + id + " not found"));
         if (event.getState() != State.PUBLISHED) {
-            throw new StorageException("Событие с Id = " + id + " не опубликованно");
+            throw new StorageException("Event with Id = " + id + " don't published");
         }
 
         hitClient.save(EndpointHit.builder().app("ewm-service")
@@ -54,7 +58,7 @@ public class PublicEventServiceImpl implements PublicEventService {
 
         return EventMapper.toEventFullDto(event,
                 getConfirmedRequest(event.getId()),
-                hitClient);
+                getEventViews(event));
     }
 
     @Override
@@ -112,7 +116,7 @@ public class PublicEventServiceImpl implements PublicEventService {
         return result.stream()
                 .map(event1 -> EventMapper.toEventFullDto(event1,
                         getConfirmedRequest(event1.getId()),
-                        hitClient))
+                        getEventViews(event1)))
                 .collect(Collectors.toList());
 
     }
@@ -124,6 +128,22 @@ public class PublicEventServiceImpl implements PublicEventService {
             confirmedRequest = requests.size();
         }
         return confirmedRequest;
+    }
+
+    private Integer getEventViews(Event event) {
+        Gson gson = new Gson();
+        Integer views = 0;
+        String[] uris = new String[]{"http://ewm-service:8080/events/" + event.getId()};
+        ResponseEntity<Object> objectResponseEntity = hitClient
+                .getStats(uris,
+                        DateTimeMapper.toString(event.getCreatedOn()),
+                        DateTimeMapper.toString(LocalDateTime.now()), false);
+        if (objectResponseEntity.getStatusCode() == HttpStatus.OK) {
+            String responseJson = gson.toJson(objectResponseEntity.getBody());
+            Stats stats = gson.fromJson(responseJson, Stats.class);
+            views = stats.getStats().stream().findFirst().orElseThrow().getHits();
+        }
+        return views;
     }
 
 }

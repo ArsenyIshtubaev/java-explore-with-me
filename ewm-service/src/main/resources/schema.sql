@@ -45,9 +45,11 @@ CREATE TABLE IF NOT EXISTS compilations
 );
 CREATE TABLE IF NOT EXISTS events_compilations
 (
-    event_id       int references events (event_id) on delete cascade,
-    compilation_id int references compilations (compilation_id) on delete cascade,
-    primary key (event_id, compilation_id)
+    event_id       int,
+    compilation_id int,
+    CONSTRAINT fk_events_compilations_to_events FOREIGN KEY (event_id) REFERENCES events (event_id),
+    CONSTRAINT fk_events_compilations_to_compilations FOREIGN KEY (compilation_id) REFERENCES compilations (compilation_id),
+        primary key (event_id, compilation_id)
 );
 CREATE TABLE IF NOT EXISTS requests
 (
@@ -59,4 +61,14 @@ CREATE TABLE IF NOT EXISTS requests
     CONSTRAINT fk_requests_to_events FOREIGN KEY (event_id) REFERENCES events (event_id),
     CONSTRAINT fk_requests_to_users FOREIGN KEY (requester_id) REFERENCES users (user_id),
     UNIQUE (event_id, request_id)
+);
+CREATE TABLE IF NOT EXISTS comments
+(
+    comment_id   BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    comment_text  VARCHAR(2000) NOT NULL,
+    event_id     BIGINT REFERENCES events (event_id),
+    commentator_id BIGINT REFERENCES users (user_id),
+    written      timestamp WITHOUT TIME ZONE NOT NULL,
+    CONSTRAINT fk_comments_to_events FOREIGN KEY (event_id) REFERENCES events (event_id),
+    CONSTRAINT fk_comments_to_users FOREIGN KEY (commentator_id) REFERENCES users (user_id)
 );

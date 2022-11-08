@@ -1,7 +1,10 @@
 package ru.practicum.ewm.adminAPI.service;
 
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.client.HitClient;
@@ -14,7 +17,9 @@ import ru.practicum.ewm.common.model.Request;
 import ru.practicum.ewm.common.repository.CompilationRepository;
 import ru.practicum.ewm.common.repository.EventRepository;
 import ru.practicum.ewm.common.repository.RequestRepository;
+import ru.practicum.ewm.common.utills.DateTimeMapper;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,7 +48,9 @@ public class AdminCompilationServiceImpl implements AdminCompilationService {
                     .collect(Collectors.toSet());
         }
         Set<EventShortDto> eventShortDtos = eventSet.stream()
-                .map(event -> EventMapper.toEventShortDto(event, getConfirmedRequest(event.getId()), hitClient))
+                .map(event -> EventMapper.toEventShortDto(event,
+                        getConfirmedRequest(event.getId()),
+                        getEventViews(event)))
                 .collect(Collectors.toSet());
         return CompilationMapper.toCompilationDto(compilationRepository
                 .save(CompilationMapper.toCompilation(newCompilationDto, eventSet)), eventShortDtos);
@@ -56,6 +63,22 @@ public class AdminCompilationServiceImpl implements AdminCompilationService {
             confirmedRequest = requests.size();
         }
         return confirmedRequest;
+    }
+
+    private Integer getEventViews(Event event) {
+        Gson gson = new Gson();
+        Integer views = 0;
+        String[] uris = new String[]{"http://ewm-service:8080/events/" + event.getId()};
+        ResponseEntity<Object> objectResponseEntity = hitClient
+                .getStats(uris,
+                        DateTimeMapper.toString(event.getCreatedOn()),
+                        DateTimeMapper.toString(LocalDateTime.now()), false);
+        if (objectResponseEntity.getStatusCode() == HttpStatus.OK) {
+            String responseJson = gson.toJson(objectResponseEntity.getBody());
+            Stats stats = gson.fromJson(responseJson, Stats.class);
+            views = stats.getStats().stream().findFirst().orElseThrow().getHits();
+        }
+        return views;
     }
 
     @Override

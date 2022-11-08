@@ -14,7 +14,9 @@ import ru.practicum.ewm.repository.HitRepository;
 import ru.practicum.ewm.utills.DateTimeMapper;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -30,9 +32,9 @@ public class HitServiceImpl implements HitService {
     }
 
     @Override
-    public List<ViewStats> findStats(List<String> uris, String start, String end, Boolean unique) {
+    public Set<ViewStats> findStats(List<String> uris, String start, String end, Boolean unique) {
 
-        List<ViewStats> stats = new ArrayList<>();
+        Set<ViewStats> stats = new HashSet<>();
 
         QHit hit = QHit.hit;
         List<BooleanExpression> conditions = new ArrayList<>();

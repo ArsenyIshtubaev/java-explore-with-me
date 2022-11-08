@@ -1,9 +1,12 @@
 package ru.practicum.ewm.publicAPI.service;
 
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.client.HitClient;
@@ -11,10 +14,13 @@ import ru.practicum.ewm.common.dto.*;
 import ru.practicum.ewm.common.enums.State;
 import ru.practicum.ewm.common.exception.StorageException;
 import ru.practicum.ewm.common.model.Compilation;
+import ru.practicum.ewm.common.model.Event;
 import ru.practicum.ewm.common.model.Request;
 import ru.practicum.ewm.common.repository.CompilationRepository;
 import ru.practicum.ewm.common.repository.RequestRepository;
+import ru.practicum.ewm.common.utills.DateTimeMapper;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,7 +38,7 @@ public class PublicCompilationServiceImpl implements PublicCompilationService {
     @Override
     public CompilationDto findById(long id) {
         Compilation compilation = compilationRepository.findById(id)
-                .orElseThrow(() -> new StorageException("Подборки событий с Id = " + id + " нет в БД"));
+                .orElseThrow(() -> new StorageException("Compilation with Id = " + id + " not found"));
         return CompilationMapper.toCompilationDto(compilation, getShortEvents(compilation));
     }
 
@@ -60,10 +66,27 @@ public class PublicCompilationServiceImpl implements PublicCompilationService {
         return confirmedRequest;
     }
 
+    private Integer getEventViews(Event event) {
+        Gson gson = new Gson();
+        Integer views = 0;
+        String[] uris = new String[]{"http://ewm-service:8080/events/" + event.getId()};
+        ResponseEntity<Object> objectResponseEntity = hitClient
+                .getStats(uris,
+                        DateTimeMapper.toString(event.getCreatedOn()),
+                        DateTimeMapper.toString(LocalDateTime.now()), false);
+        if (objectResponseEntity.getStatusCode() == HttpStatus.OK) {
+            String responseJson = gson.toJson(objectResponseEntity.getBody());
+            Stats stats = gson.fromJson(responseJson, Stats.class);
+            views = stats.getStats().stream().findFirst().orElseThrow().getHits();
+        }
+        return views;
+    }
+
     private Set<EventShortDto> getShortEvents(Compilation compilation) {
         return compilation.getEvents().stream()
                 .map(event -> EventMapper.toEventShortDto(event,
-                        getConfirmedRequest(event.getId()), hitClient))
+                        getConfirmedRequest(event.getId()),
+                        getEventViews(event)))
                 .collect(Collectors.toSet());
     }
 }

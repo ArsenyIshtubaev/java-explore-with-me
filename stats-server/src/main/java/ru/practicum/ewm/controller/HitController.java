@@ -8,6 +8,7 @@ import ru.practicum.ewm.dto.ViewStats;
 import ru.practicum.ewm.service.HitService;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @Slf4j
@@ -18,10 +19,12 @@ public class HitController {
     private final HitService hitService;
 
     @GetMapping("/stats")
-    public List<ViewStats> findStats(@RequestParam(required = true) List<String> uris,
-                                     @RequestParam(required = true) String start,
-                                     @RequestParam(required = true) String end,
-                                     @RequestParam(defaultValue = "false") Boolean unique) {
+    public Set<ViewStats> findStats(@RequestParam(required = true) List<String> uris,
+                                    @RequestParam(required = true) String start,
+                                    @RequestParam(required = true) String end,
+                                    @RequestParam(defaultValue = "false") Boolean unique) {
+        log.info("Получен запрос к эндпоинту: GET /stats, Uris: {} и unique: {}",
+                uris, unique);
         return hitService.findStats(uris, start, end, unique);
     }
 

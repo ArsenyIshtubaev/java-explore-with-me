@@ -5,13 +5,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Set;
+import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Stats {
+public class CommentShortDto {
 
-    private Set<ViewStats> stats;
+    private Long id;
+    @NotBlank(message = "comment should not be blank")
+    private String text;
+
 }

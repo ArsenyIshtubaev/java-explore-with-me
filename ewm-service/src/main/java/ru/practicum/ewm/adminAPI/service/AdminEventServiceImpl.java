@@ -1,15 +1,19 @@
 package ru.practicum.ewm.adminAPI.service;
 
+import com.google.gson.Gson;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.client.HitClient;
 import ru.practicum.ewm.common.dto.EventFullDto;
 import ru.practicum.ewm.common.dto.EventMapper;
+import ru.practicum.ewm.common.dto.Stats;
 import ru.practicum.ewm.common.dto.UpdateEventRequest;
 import ru.practicum.ewm.common.enums.State;
 import ru.practicum.ewm.common.exception.StorageException;
@@ -64,7 +68,7 @@ public class AdminEventServiceImpl implements AdminEventService {
                 .get();
         return eventRepository.findAll(expression, pageable).stream().map(event1 -> EventMapper.toEventFullDto(event1,
                         getConfirmedRequest(event1.getId()),
-                        hitClient))
+                        getEventViews(event1)))
                 .collect(Collectors.toList());
     }
 
@@ -102,7 +106,7 @@ public class AdminEventServiceImpl implements AdminEventService {
         event.setState(State.PENDING);
         return EventMapper.toEventFullDto(eventRepository.save(event),
                 getConfirmedRequest(eventId),
-                hitClient);
+                getEventViews(event));
     }
 
     @Override
@@ -114,7 +118,7 @@ public class AdminEventServiceImpl implements AdminEventService {
         event.setPublishedOn(LocalDateTime.now());
         return EventMapper.toEventFullDto(eventRepository.save(event),
                 getConfirmedRequest(eventId),
-                hitClient);
+                getEventViews(event));
     }
 
     @Override
@@ -126,7 +130,7 @@ public class AdminEventServiceImpl implements AdminEventService {
         event.setState(State.CANCELED);
         return EventMapper.toEventFullDto(eventRepository.save(event),
                 getConfirmedRequest(eventId),
-                hitClient);
+                getEventViews(event));
     }
 
     private int getConfirmedRequest(long eventId) {
@@ -136,6 +140,22 @@ public class AdminEventServiceImpl implements AdminEventService {
             confirmedRequest = requests.size();
         }
         return confirmedRequest;
+    }
+
+    private Integer getEventViews(Event event) {
+        Gson gson = new Gson();
+        Integer views = 0;
+        String[] uris = new String[]{"http://ewm-service:8080/events/" + event.getId()};
+        ResponseEntity<Object> objectResponseEntity = hitClient
+                .getStats(uris,
+                        DateTimeMapper.toString(event.getCreatedOn()),
+                        DateTimeMapper.toString(LocalDateTime.now()), false);
+        if (objectResponseEntity.getStatusCode() == HttpStatus.OK) {
+            String responseJson = gson.toJson(objectResponseEntity.getBody());
+            Stats stats = gson.fromJson(responseJson, Stats.class);
+            views = stats.getStats().stream().findFirst().orElseThrow().getHits();
+        }
+        return views;
     }
 
 }
