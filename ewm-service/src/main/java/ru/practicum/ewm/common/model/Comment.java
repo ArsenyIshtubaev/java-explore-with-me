@@ -22,11 +22,11 @@ public class Comment {
     private Long id;
     @Column(name = "comment_text", nullable = false)
     private String text;
-    @ManyToOne
-    @JoinColumn(name = "event_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "event_id", nullable = false)
     private Event event;
-    @ManyToOne
-    @JoinColumn(name = "commentator_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "commentator_id", nullable = false)
     private User commentator;
     @Column(nullable = false)
     private LocalDateTime written;

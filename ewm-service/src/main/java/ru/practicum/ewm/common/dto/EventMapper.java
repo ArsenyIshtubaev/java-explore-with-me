@@ -33,7 +33,7 @@ public final class EventMapper {
                 State.PENDING);
     }
 
-    public static EventFullDto toEventFullDto(Event event, Integer confirmedRequest, Integer views) {
+    public static EventFullDto toEventFullDto(Event event, Long confirmedRequest, Integer views) {
         String published = null;
         if (event.getPublishedOn() != null) {
             published = DateTimeMapper.toString(event.getPublishedOn());
@@ -56,7 +56,7 @@ public final class EventMapper {
                 views);
     }
 
-    public static EventShortDto toEventShortDto(Event event, Integer confirmedRequest, Integer views) {
+    public static EventShortDto toEventShortDto(Event event, Long confirmedRequest, Integer views) {
         return new EventShortDto(event.getId(),
                 event.getAnnotation(),
                 CategoryMapper.toCategoryDto(event.getCategory()),

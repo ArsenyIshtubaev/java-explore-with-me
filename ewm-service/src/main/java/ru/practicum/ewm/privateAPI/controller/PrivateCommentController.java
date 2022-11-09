@@ -9,8 +9,8 @@ import ru.practicum.ewm.privateAPI.service.PrivateCommentService;
 
 import javax.validation.Valid;
 
-@RestController
 @Slf4j
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/users/{userId}/comments")
 public class PrivateCommentController {

@@ -1,32 +1,27 @@
 package ru.practicum.ewm.adminAPI.service;
 
-import com.google.gson.Gson;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ewm.client.HitClient;
 import ru.practicum.ewm.common.dto.EventFullDto;
 import ru.practicum.ewm.common.dto.EventMapper;
-import ru.practicum.ewm.common.dto.Stats;
 import ru.practicum.ewm.common.dto.UpdateEventRequest;
 import ru.practicum.ewm.common.enums.State;
 import ru.practicum.ewm.common.exception.StorageException;
 import ru.practicum.ewm.common.model.Event;
 import ru.practicum.ewm.common.model.QEvent;
-import ru.practicum.ewm.common.model.Request;
 import ru.practicum.ewm.common.repository.CategoryRepository;
 import ru.practicum.ewm.common.repository.EventRepository;
-import ru.practicum.ewm.common.repository.RequestRepository;
 import ru.practicum.ewm.common.utills.DateTimeMapper;
+import ru.practicum.ewm.common.utills.SearchEventValues;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,9 +32,8 @@ import java.util.stream.Collectors;
 public class AdminEventServiceImpl implements AdminEventService {
 
     private final EventRepository eventRepository;
-    private final RequestRepository requestRepository;
     private final CategoryRepository categoryRepository;
-    private final HitClient hitClient;
+    private final SearchEventValues searchEventValues;
 
     @Override
     public List<EventFullDto> findAll(List<Long> users, List<State> states, List<Long> categories, String rangeStart,
@@ -66,9 +60,14 @@ public class AdminEventServiceImpl implements AdminEventService {
         BooleanExpression expression = conditions.stream()
                 .reduce(BooleanExpression::and)
                 .get();
-        return eventRepository.findAll(expression, pageable).stream().map(event1 -> EventMapper.toEventFullDto(event1,
-                        getConfirmedRequest(event1.getId()),
-                        getEventViews(event1)))
+
+        List<Event> events = eventRepository.findAll(expression, pageable).toList();
+        List<Long> ids = events.stream().map(Event::getId).collect(Collectors.toList());
+        HashMap<Long, Long> confirmedRequests = searchEventValues.getConfirmedRequests(ids);
+        HashMap<Long, Integer> eventViews = searchEventValues.getEventsViews(ids);
+        return events.stream().map(event1 -> EventMapper.toEventFullDto(event1,
+                       confirmedRequests.get(event1.getId()),
+                        eventViews.get(event1.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -105,8 +104,8 @@ public class AdminEventServiceImpl implements AdminEventService {
         }
         event.setState(State.PENDING);
         return EventMapper.toEventFullDto(eventRepository.save(event),
-                getConfirmedRequest(eventId),
-                getEventViews(event));
+                searchEventValues.getConfirmedRequest(eventId),
+                searchEventValues.getEventViews(event));
     }
 
     @Override
@@ -117,8 +116,8 @@ public class AdminEventServiceImpl implements AdminEventService {
         event.setState(State.PUBLISHED);
         event.setPublishedOn(LocalDateTime.now());
         return EventMapper.toEventFullDto(eventRepository.save(event),
-                getConfirmedRequest(eventId),
-                getEventViews(event));
+                searchEventValues.getConfirmedRequest(eventId),
+                searchEventValues.getEventViews(event));
     }
 
     @Override
@@ -129,33 +128,8 @@ public class AdminEventServiceImpl implements AdminEventService {
                 .orElseThrow(() -> new StorageException("Event with  Id = " + eventId + " not found"));
         event.setState(State.CANCELED);
         return EventMapper.toEventFullDto(eventRepository.save(event),
-                getConfirmedRequest(eventId),
-                getEventViews(event));
-    }
-
-    private int getConfirmedRequest(long eventId) {
-        int confirmedRequest = 0;
-        List<Request> requests = requestRepository.findAllByEventIdAndStatus(eventId, State.CONFIRMED);
-        if (!requests.isEmpty()) {
-            confirmedRequest = requests.size();
-        }
-        return confirmedRequest;
-    }
-
-    private Integer getEventViews(Event event) {
-        Gson gson = new Gson();
-        Integer views = 0;
-        String[] uris = new String[]{"http://ewm-service:8080/events/" + event.getId()};
-        ResponseEntity<Object> objectResponseEntity = hitClient
-                .getStats(uris,
-                        DateTimeMapper.toString(event.getCreatedOn()),
-                        DateTimeMapper.toString(LocalDateTime.now()), false);
-        if (objectResponseEntity.getStatusCode() == HttpStatus.OK) {
-            String responseJson = gson.toJson(objectResponseEntity.getBody());
-            Stats stats = gson.fromJson(responseJson, Stats.class);
-            views = stats.getStats().stream().findFirst().orElseThrow().getHits();
-        }
-        return views;
+                searchEventValues.getConfirmedRequest(eventId),
+                searchEventValues.getEventViews(event));
     }
 
 }

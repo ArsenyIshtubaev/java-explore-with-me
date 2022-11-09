@@ -8,8 +8,8 @@ import ru.practicum.ewm.publicAPI.service.PublicCategoryService;
 
 import java.util.List;
 
-@RestController
 @Slf4j
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/categories")
 public class PublicCategoryController {

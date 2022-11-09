@@ -9,8 +9,8 @@ import ru.practicum.ewm.publicAPI.service.PublicEventService;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-@RestController
 @Slf4j
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/events")
 public class PublicEventController {
@@ -19,7 +19,7 @@ public class PublicEventController {
 
     @GetMapping
     public List<EventFullDto> findAll(@RequestParam(required = false) String text,
-                                      @RequestParam(required = false) List<Long> categories,
+                                      @RequestParam( required = false) List<Long> categories,
                                       @RequestParam(required = false) Boolean paid,
                                       @RequestParam(required = false) String rangeStart,
                                       @RequestParam(required = false) String rangeEnd,

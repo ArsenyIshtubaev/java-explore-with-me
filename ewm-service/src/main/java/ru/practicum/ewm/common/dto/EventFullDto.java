@@ -15,7 +15,7 @@ public class EventFullDto {
     @NotNull
     private String annotation;
     private CategoryDto category;
-    private Integer confirmedRequests;
+    private Long confirmedRequests;
     private String createdOn;
     private String description;
     @NotNull

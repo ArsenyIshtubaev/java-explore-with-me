@@ -9,8 +9,8 @@ import ru.practicum.ewm.common.dto.UserDto;
 import javax.validation.Valid;
 import java.util.List;
 
-@RestController
 @Slf4j
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin/users")
 public class AdminUserController {

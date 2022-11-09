@@ -1,25 +1,18 @@
 package ru.practicum.ewm.adminAPI.service;
 
-import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ewm.client.HitClient;
 import ru.practicum.ewm.common.dto.*;
-import ru.practicum.ewm.common.enums.State;
 import ru.practicum.ewm.common.exception.StorageException;
 import ru.practicum.ewm.common.model.Compilation;
 import ru.practicum.ewm.common.model.Event;
-import ru.practicum.ewm.common.model.Request;
 import ru.practicum.ewm.common.repository.CompilationRepository;
 import ru.practicum.ewm.common.repository.EventRepository;
-import ru.practicum.ewm.common.repository.RequestRepository;
-import ru.practicum.ewm.common.utills.DateTimeMapper;
+import ru.practicum.ewm.common.utills.SearchEventValues;
 
-import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,54 +24,33 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class AdminCompilationServiceImpl implements AdminCompilationService {
 
-
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
-    private final RequestRepository requestRepository;
-    private final HitClient hitClient;
+    private final SearchEventValues searchEventValues;
+
 
     @Override
     @Transactional
     public CompilationDto save(NewCompilationDto newCompilationDto) {
         Set<Event> eventSet = new HashSet<>();
-        if (newCompilationDto.getEvents() != null) {
+        Set<EventShortDto> eventShortDtos = new HashSet<>();
+        if (!newCompilationDto.getEvents().isEmpty()) {
             eventSet = newCompilationDto.getEvents().stream()
                     .map(eventRepository::findById)
                     .map(event -> event.orElseThrow(() -> new StorageException("Event not found")))
                     .collect(Collectors.toSet());
+            List<Long> ids = eventSet.stream().map(Event::getId).collect(Collectors.toList());
+            HashMap<Long, Long> confirmedRequests = searchEventValues.getConfirmedRequests(ids);
+            HashMap<Long, Integer> eventViews = searchEventValues.getEventsViews(ids);
+            eventShortDtos = eventSet.stream()
+                    .map(event -> EventMapper.toEventShortDto(event,
+                            confirmedRequests.get(event.getId()),
+                            eventViews.get(event.getId())))
+                    .collect(Collectors.toSet());
         }
-        Set<EventShortDto> eventShortDtos = eventSet.stream()
-                .map(event -> EventMapper.toEventShortDto(event,
-                        getConfirmedRequest(event.getId()),
-                        getEventViews(event)))
-                .collect(Collectors.toSet());
-        return CompilationMapper.toCompilationDto(compilationRepository
-                .save(CompilationMapper.toCompilation(newCompilationDto, eventSet)), eventShortDtos);
-    }
-
-    private int getConfirmedRequest(long eventId) {
-        int confirmedRequest = 0;
-        List<Request> requests = requestRepository.findAllByEventIdAndStatus(eventId, State.CONFIRMED);
-        if (!requests.isEmpty()) {
-            confirmedRequest = requests.size();
-        }
-        return confirmedRequest;
-    }
-
-    private Integer getEventViews(Event event) {
-        Gson gson = new Gson();
-        Integer views = 0;
-        String[] uris = new String[]{"http://ewm-service:8080/events/" + event.getId()};
-        ResponseEntity<Object> objectResponseEntity = hitClient
-                .getStats(uris,
-                        DateTimeMapper.toString(event.getCreatedOn()),
-                        DateTimeMapper.toString(LocalDateTime.now()), false);
-        if (objectResponseEntity.getStatusCode() == HttpStatus.OK) {
-            String responseJson = gson.toJson(objectResponseEntity.getBody());
-            Stats stats = gson.fromJson(responseJson, Stats.class);
-            views = stats.getStats().stream().findFirst().orElseThrow().getHits();
-        }
-        return views;
+        Compilation compilation = compilationRepository
+                .save(CompilationMapper.toCompilation(newCompilationDto, eventSet));
+        return CompilationMapper.toCompilationDto(compilation, eventShortDtos);
     }
 
     @Override

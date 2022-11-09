@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.dto.EndpointHit;
 import ru.practicum.ewm.dto.HitMapper;
+import ru.practicum.ewm.dto.Stats;
 import ru.practicum.ewm.dto.ViewStats;
 import ru.practicum.ewm.model.Hit;
 import ru.practicum.ewm.model.QHit;
@@ -62,7 +63,13 @@ public class HitServiceImpl implements HitService {
             stats.add(new ViewStats(h.getApp(), h.getUri(), hits));
         }
         return stats;
+    }
 
+    @Override
+    public Stats findViews(List<String> uris, String start, String end, Boolean unique) {
+        Stats viewStats = new Stats();
+        viewStats.setStats(findStats(uris, start, end, unique));
+        return viewStats;
     }
 
 }

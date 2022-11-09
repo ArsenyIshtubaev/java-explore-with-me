@@ -8,8 +8,8 @@ import ru.practicum.ewm.common.dto.CategoryDto;
 
 import javax.validation.Valid;
 
-@RestController
 @Slf4j
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin/categories")
 public class AdminCategoryController {

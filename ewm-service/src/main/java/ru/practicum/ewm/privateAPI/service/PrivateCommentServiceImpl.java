@@ -48,6 +48,8 @@ public class PrivateCommentServiceImpl implements PrivateCommentService {
     @Override
     @Transactional
     public void delete(long userId, long commentId) {
-        commentRepository.deleteById(commentId);
+        Comment comment = commentRepository.findByIdAndCommentator_Id(commentId, userId)
+                .orElseThrow(() -> new StorageException("Comment with Id = " + commentId + " not found"));
+        commentRepository.delete(comment);
     }
 }

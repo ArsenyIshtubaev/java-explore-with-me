@@ -11,8 +11,8 @@ import ru.practicum.ewm.publicAPI.service.PublicCommentService;
 
 import java.util.List;
 
-@RestController
 @Slf4j
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/comments")
 public class PublicCommentController {

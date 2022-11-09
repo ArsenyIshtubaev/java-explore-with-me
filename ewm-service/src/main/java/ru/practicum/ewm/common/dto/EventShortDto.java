@@ -21,7 +21,7 @@ public class EventShortDto {
     private Boolean paid;
     @NotNull
     private String title;
-    private Integer confirmedRequests;
+    private Long confirmedRequests;
     private UserDto initiator;
     private Integer views;
 

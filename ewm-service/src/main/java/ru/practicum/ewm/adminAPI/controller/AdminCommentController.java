@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.adminAPI.service.AdminCommentService;
 import ru.practicum.ewm.common.dto.CommentDto;
 
-@RestController
 @Slf4j
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin/comments")
 public class AdminCommentController {
