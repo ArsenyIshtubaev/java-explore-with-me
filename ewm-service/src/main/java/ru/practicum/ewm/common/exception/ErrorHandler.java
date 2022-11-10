@@ -2,6 +2,8 @@ package ru.practicum.ewm.common.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -47,6 +49,30 @@ public class ErrorHandler {
                 .reason("Error occurred")
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.toString())
                 .timestamp(DateTimeMapper.toString(LocalDateTime.now()))
+                .build();
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleMissingParams(MissingServletRequestParameterException ex) {
+        log.info("parameter is missing type: " + ex.getParameterType() + " name: " + ex.getParameterName());
+        ex.printStackTrace();
+        return ApiError.builder()
+                .message(ex.getMessage())
+                .reason("request parameter messed")
+                .status(HttpStatus.BAD_REQUEST.toString())
+                .build();
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleArgumentNotValid(MethodArgumentNotValidException ex) {
+        log.error("Validation failed for object: " + ex.getObjectName());
+        ex.printStackTrace();
+        return ApiError.builder()
+                .message(ex.getMessage())
+                .reason("Validation failed")
+                .status(HttpStatus.BAD_REQUEST.toString())
                 .build();
     }
 }

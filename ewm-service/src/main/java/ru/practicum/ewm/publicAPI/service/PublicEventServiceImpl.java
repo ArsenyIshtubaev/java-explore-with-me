@@ -63,11 +63,14 @@ public class PublicEventServiceImpl implements PublicEventService {
                                       HttpServletRequest request) {
 
         Sort sort1 = Sort.unsorted();
-        if (sort.equals("EVENT_DATE")) {
-            sort1 = Sort.by("eventDate");
-        }
-        if (sort.equals("VIEWS")) {
-            sort1 = Sort.by("views");
+
+        if (sort != null) {
+            if (sort.equals("EVENT_DATE")) {
+                sort1 = Sort.by("eventDate");
+            }
+            if (sort.equals("VIEWS")) {
+                sort1 = Sort.by("views");
+            }
         }
 
         Pageable pageable = PageRequest.of(from / size, size, sort1);
