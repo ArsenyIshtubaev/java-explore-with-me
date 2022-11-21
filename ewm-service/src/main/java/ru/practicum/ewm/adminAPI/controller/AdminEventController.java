@@ -11,8 +11,8 @@ import ru.practicum.ewm.common.enums.State;
 import javax.validation.Valid;
 import java.util.List;
 
-@RestController
 @Slf4j
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin/events")
 public class AdminEventController {

@@ -1,11 +1,7 @@
 package ru.practicum.ewm.common.dto;
 
-import com.google.gson.Gson;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import ru.practicum.ewm.client.HitClient;
 import ru.practicum.ewm.common.enums.State;
 import ru.practicum.ewm.common.model.Category;
 import ru.practicum.ewm.common.model.Event;
@@ -37,22 +33,10 @@ public final class EventMapper {
                 State.PENDING);
     }
 
-    public static EventFullDto toEventFullDto(Event event, Integer confirmedRequest, HitClient hitClient) {
-        Gson gson = new Gson();
-        Integer views = 0;
+    public static EventFullDto toEventFullDto(Event event, Long confirmedRequest, Integer views) {
         String published = null;
         if (event.getPublishedOn() != null) {
             published = DateTimeMapper.toString(event.getPublishedOn());
-        }
-        String[] uris = new String[]{"http://ewm-service:8080/events/" + event.getId()};
-        ResponseEntity<Object> objectResponseEntity = hitClient
-                .getStats(uris,
-                        DateTimeMapper.toString(event.getCreatedOn()),
-                        DateTimeMapper.toString(LocalDateTime.now()), false);
-        if (objectResponseEntity.getStatusCode() == HttpStatus.OK) {
-            String responseJson = gson.toJson(objectResponseEntity.getBody());
-            Stats stats = gson.fromJson(responseJson, Stats.class);
-            views = stats.getStats().get(0).getHits();
         }
         return new EventFullDto(event.getId(),
                 event.getAnnotation(),
@@ -72,19 +56,7 @@ public final class EventMapper {
                 views);
     }
 
-    public static EventShortDto toEventShortDto(Event event, Integer confirmedRequest, HitClient hitClient) {
-        Gson gson = new Gson();
-        Integer views = 0;
-        String[] uris = new String[]{"http://ewm-service:8080/events/" + event.getId()};
-        ResponseEntity<Object> objectResponseEntity = hitClient
-                .getStats(uris,
-                        DateTimeMapper.toString(event.getCreatedOn()),
-                        DateTimeMapper.toString(LocalDateTime.now()), false);
-        if (objectResponseEntity.getStatusCode() == HttpStatus.OK) {
-            String responseJson = gson.toJson(objectResponseEntity.getBody());
-            Stats stats = gson.fromJson(responseJson, Stats.class);
-            views = stats.getStats().get(0).getHits();
-        }
+    public static EventShortDto toEventShortDto(Event event, Long confirmedRequest, Integer views) {
         return new EventShortDto(event.getId(),
                 event.getAnnotation(),
                 CategoryMapper.toCategoryDto(event.getCategory()),

@@ -9,8 +9,8 @@ import ru.practicum.ewm.privateAPI.service.PrivateEventService;
 import javax.validation.Valid;
 import java.util.List;
 
-@RestController
 @Slf4j
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/users/{userId}/events")
 public class PrivateEventController {

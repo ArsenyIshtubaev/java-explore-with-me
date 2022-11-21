@@ -8,8 +8,8 @@ import ru.practicum.ewm.publicAPI.service.PublicCompilationService;
 
 import java.util.List;
 
-@RestController
 @Slf4j
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/compilations")
 public class PublicCompilationsController {

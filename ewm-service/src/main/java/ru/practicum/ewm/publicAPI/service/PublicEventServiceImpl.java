@@ -3,7 +3,6 @@ package ru.practicum.ewm.publicAPI.service;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -17,34 +16,35 @@ import ru.practicum.ewm.common.enums.State;
 import ru.practicum.ewm.common.exception.StorageException;
 import ru.practicum.ewm.common.model.Event;
 import ru.practicum.ewm.common.model.QEvent;
-import ru.practicum.ewm.common.model.Request;
 import ru.practicum.ewm.common.repository.EventRepository;
-import ru.practicum.ewm.common.repository.RequestRepository;
 import ru.practicum.ewm.common.utills.DateTimeMapper;
+import ru.practicum.ewm.common.utills.SearchEventValues;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class PublicEventServiceImpl implements PublicEventService {
 
     private final EventRepository eventRepository;
-    private final RequestRepository requestRepository;
     private final HitClient hitClient;
+    private final SearchEventValues searchEventValues;
+
 
     @Override
     public EventFullDto findById(long id, HttpServletRequest request) {
 
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new StorageException("События с Id = " + id + " нет в БД"));
+                .orElseThrow(() -> new StorageException("Event with Id = " + id + " not found"));
         if (event.getState() != State.PUBLISHED) {
-            throw new StorageException("Событие с Id = " + id + " не опубликованно");
+            throw new StorageException("Event with Id = " + id + " don't published");
         }
 
         hitClient.save(EndpointHit.builder().app("ewm-service")
@@ -53,8 +53,8 @@ public class PublicEventServiceImpl implements PublicEventService {
                 .ip(request.getRemoteAddr()).build());
 
         return EventMapper.toEventFullDto(event,
-                getConfirmedRequest(event.getId()),
-                hitClient);
+                searchEventValues.getConfirmedRequest(event.getId()),
+                searchEventValues.getEventViews(event));
     }
 
     @Override
@@ -63,11 +63,14 @@ public class PublicEventServiceImpl implements PublicEventService {
                                       HttpServletRequest request) {
 
         Sort sort1 = Sort.unsorted();
-        if (sort.equals("EVENT_DATE")) {
-            sort1 = Sort.by("eventDate");
-        }
-        if (sort.equals("VIEWS")) {
-            sort1 = Sort.by("views");
+
+        if (sort != null) {
+            if (sort.equals("EVENT_DATE")) {
+                sort1 = Sort.by("eventDate");
+            }
+            if (sort.equals("VIEWS")) {
+                sort1 = Sort.by("views");
+            }
         }
 
         Pageable pageable = PageRequest.of(from / size, size, sort1);
@@ -96,14 +99,16 @@ public class PublicEventServiceImpl implements PublicEventService {
         BooleanExpression expression = conditions.stream()
                 .reduce(BooleanExpression::and)
                 .get();
-        Page<Event> result = eventRepository.findAll(expression, pageable);
+        List<Event> result = eventRepository.findAll(expression, pageable).toList();
 
+        List<Long> ids = result.stream().map(Event::getId).collect(Collectors.toList());
+        HashMap<Long, Long> confirmedRequests = searchEventValues.getConfirmedRequests(ids);
+        HashMap<Long, Integer> eventViews = searchEventValues.getEventsViews(ids);
         if (onlyAvailable) {
-            result.stream()
-                    .filter(event1 -> event1.getParticipantLimit() > getConfirmedRequest(event1.getId()))
+            result = result.stream()
+                    .filter(event1 -> event1.getParticipantLimit() > confirmedRequests.get(event1.getId()))
                     .collect(Collectors.toList());
         }
-
         result.stream().peek(event1 -> hitClient.save(EndpointHit.builder().app("ewm-service")
                 .timestamp(DateTimeMapper.toString(LocalDateTime.now()))
                 .uri(request.getRequestURI() + "/" + event1.getId())
@@ -111,19 +116,9 @@ public class PublicEventServiceImpl implements PublicEventService {
 
         return result.stream()
                 .map(event1 -> EventMapper.toEventFullDto(event1,
-                        getConfirmedRequest(event1.getId()),
-                        hitClient))
+                        confirmedRequests.get(event1.getId()),
+                        eventViews.get(event1.getId())))
                 .collect(Collectors.toList());
-
-    }
-
-    private int getConfirmedRequest(long eventId) {
-        int confirmedRequest = 0;
-        List<Request> requests = requestRepository.findAllByEventIdAndStatus(eventId, State.CONFIRMED);
-        if (!requests.isEmpty()) {
-            confirmedRequest = requests.size();
-        }
-        return confirmedRequest;
     }
 
 }

@@ -8,8 +8,8 @@ import ru.practicum.ewm.common.dto.CategoryDto;
 
 import javax.validation.Valid;
 
-@RestController
 @Slf4j
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin/categories")
 public class AdminCategoryController {
@@ -18,7 +18,7 @@ public class AdminCategoryController {
 
     @PostMapping
     public CategoryDto create(@RequestBody @Valid CategoryDto categoryDto) {
-        log.info("Get request: '{} {}', Category: Name: {}", "POST", "/admin/categories",
+        log.info("Post request: '{} {}', Category: Name: {}", "POST", "/admin/categories",
                 categoryDto.getName());
         return adminCategoryService.save(categoryDto);
     }

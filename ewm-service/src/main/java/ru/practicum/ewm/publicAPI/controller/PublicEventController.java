@@ -9,8 +9,8 @@ import ru.practicum.ewm.publicAPI.service.PublicEventService;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-@RestController
 @Slf4j
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/events")
 public class PublicEventController {

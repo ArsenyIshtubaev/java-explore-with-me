@@ -25,7 +25,7 @@ public class PublicCategoryServiceImpl implements PublicCategoryService {
     @Override
     public CategoryDto findById(long id) {
         return CategoryMapper.toCategoryDto(categoryRepository.findById(id)
-                .orElseThrow(() -> new StorageException("Категории с Id = " + id + " нет в БД")));
+                .orElseThrow(() -> new StorageException("Category with Id = " + id + " not found")));
     }
 
     @Override
