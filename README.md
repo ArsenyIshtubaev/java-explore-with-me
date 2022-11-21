@@ -1,5 +1,5 @@
 
-# <img src="C:\Users\arsen\devWork\java-explore-with-me\Рисунок1.png"/>
+# ![](Рисунок1.png)
 ---
 
 ***Explore-with-me - сервис-афиша, где можно предложить какое-либо событие от выставки
