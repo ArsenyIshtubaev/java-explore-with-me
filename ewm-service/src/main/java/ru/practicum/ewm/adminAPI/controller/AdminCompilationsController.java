@@ -9,8 +9,8 @@ import ru.practicum.ewm.common.dto.NewCompilationDto;
 
 import javax.validation.Valid;
 
-@RestController
 @Slf4j
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin/compilations")
 public class AdminCompilationsController {

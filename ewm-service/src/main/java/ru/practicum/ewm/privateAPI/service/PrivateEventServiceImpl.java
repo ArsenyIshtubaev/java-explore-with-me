@@ -6,7 +6,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ewm.client.HitClient;
 import ru.practicum.ewm.common.dto.*;
 import ru.practicum.ewm.common.enums.State;
 import ru.practicum.ewm.common.exception.ForbiddenException;
@@ -17,8 +16,10 @@ import ru.practicum.ewm.common.model.Request;
 import ru.practicum.ewm.common.model.User;
 import ru.practicum.ewm.common.repository.*;
 import ru.practicum.ewm.common.utills.DateTimeMapper;
+import ru.practicum.ewm.common.utills.SearchEventValues;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,35 +34,31 @@ public class PrivateEventServiceImpl implements PrivateEventService {
     private final RequestRepository requestRepository;
     private final CategoryRepository categoryRepository;
     private final LocationRepository locationRepository;
-    private final HitClient hitClient;
+    private final SearchEventValues searchEventValues;
 
     @Override
     public EventFullDto findById(long userId, long eventId) {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new StorageException("Event with Id = " + eventId +
                         " and initiatorId = " + userId + " not found"));
-        eventRepository.save(event);
         return EventMapper.toEventFullDto(event,
-                getConfirmedRequest(eventId),
-                hitClient);
+                searchEventValues.getConfirmedRequest(eventId),
+                searchEventValues.getEventViews(event));
     }
 
     @Override
     public List<EventShortDto> findAll(long userId, int from, int size) {
         Pageable pageable = PageRequest.of(from / size, size);
-        return eventRepository.findByInitiatorId(userId, pageable)
-                .stream()
-                .map(event -> EventMapper.toEventShortDto(event, getConfirmedRequest(event.getId()), hitClient))
-                .collect(Collectors.toList());
-    }
 
-    private int getConfirmedRequest(long eventId) {
-        int confirmedRequest = 0;
-        List<Request> requests = requestRepository.findAllByEventIdAndStatus(eventId, State.CONFIRMED);
-        if (!requests.isEmpty()) {
-            confirmedRequest = requests.size();
-        }
-        return confirmedRequest;
+        List<Event> events = eventRepository.findByInitiatorId(userId, pageable);
+        List<Long> ids = events.stream().map(Event::getId).collect(Collectors.toList());
+        HashMap<Long, Long> confirmedRequests = searchEventValues.getConfirmedRequests(ids);
+        HashMap<Long, Integer> eventViews = searchEventValues.getEventsViews(ids);
+        return events.stream()
+                .map(event -> EventMapper.toEventShortDto(event,
+                        confirmedRequests.get(event.getId()),
+                        eventViews.get(event.getId())))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -79,8 +76,8 @@ public class PrivateEventServiceImpl implements PrivateEventService {
                         + newEventDto.getCategory() + " not found"));
         Event event = eventRepository.save(EventMapper.toEvent(newEventDto, initiator, category));
         return EventMapper.toEventFullDto(event,
-                0,
-                hitClient);
+                0L,
+                searchEventValues.getEventViews(event));
     }
 
     @Override
@@ -135,7 +132,8 @@ public class PrivateEventServiceImpl implements PrivateEventService {
             event.setTitle(updateEventRequest.getTitle());
         }
         return EventMapper.toEventFullDto(eventRepository.save(event),
-                getConfirmedRequest(eventId), hitClient);
+                searchEventValues.getConfirmedRequest(eventId),
+                searchEventValues.getEventViews(event));
     }
 
     @Override
@@ -149,7 +147,8 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         }
         event.setState(State.CANCELED);
         return EventMapper.toEventFullDto(eventRepository.save(event),
-                getConfirmedRequest(eventId), hitClient);
+                searchEventValues.getConfirmedRequest(eventId),
+                searchEventValues.getEventViews(event));
     }
 
     @Override
@@ -202,4 +201,5 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         request.setStatus(State.REJECTED);
         return RequestMapper.toParticipationRequestDto(requestRepository.save(request));
     }
+
 }

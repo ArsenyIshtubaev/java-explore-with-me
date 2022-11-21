@@ -8,8 +8,8 @@ import ru.practicum.ewm.privateAPI.service.RequestService;
 
 import java.util.List;
 
-@RestController
 @Slf4j
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/users/{userId}/requests")
 public class RequestController {

@@ -5,13 +5,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Set;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Stats {
+public class ConfirmedRequestDto {
 
-    private Set<ViewStats> stats;
+    private Long eventId;
+    private Long confirmedRequests;
+
 }
